@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.idea/
+*.pyc
+*.log
+secrets.py
+
+# Папки внутри Oleg
+Oleg/__pycache__/
+Oleg/models/__pycache__/
+Oleg/tests/__pycache__/
+Oleg/utils/__pycache__/
+Oleg/.pytest_cache/
+Oleg/tests/THOUGHTS.py
