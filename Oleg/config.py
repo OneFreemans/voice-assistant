@@ -1,12 +1,12 @@
-
-
 # Команды для активации
 JARVIS_COMMANDS = ["Jarvis", "Джа", "Джарв", "Джарви", "Джарвис", "Джарвиз", "jarvi", "Джаред", "shareit", "Чарльз", "джар"]
+
 
 # Типы команд
 REQUEST_O = ["рассчитай", "подсчитай", "посчитай", "прочитай", "рассчитать"]
 CURRENCY = ["курс", "доллар", "евро"]
 REQUEST_YANDEX = ["яндекс", "индекс"]
+
 
 # Форматы времени
 MINUTE_FORMATS = ["минут", "минуты", "минуту", "минута"]
@@ -14,12 +14,14 @@ HOUR_FORMATS = ["часов", "часа", "час"]
 UTC_OFFSET = 7
 DEFAULT_CITY = "кемерово"
 
+
 # База данных программ
 PROGRAMS = {
     "steam": "D:\\Steam\\steam.exe",
     "discord": "C:\\Users\\OneFr\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe",
     "браузер": "C:\\Users\\OneFr\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe"
 }
+
 
 # Сайты
 WEBSITES = {
@@ -33,11 +35,13 @@ WEBSITES = {
     "авито": "www.avito.ru",
 }
 
+
 # Материалы для стяжки
 MATERIALS = {
     "стяжку": "19, 25, 318, 600",
     "наливной": "21, 25, 432, 250",
 }
+
 
 # Курсы валют
 CURRENCY_NAMES = {
@@ -45,11 +49,11 @@ CURRENCY_NAMES = {
     "евро": "EUR",
 }
 
+
 WORD_CURRENCY = {
     "доллар": "USD",
     "евро": "EUR",
 }
-
 
 
 # Список команд для обработки
