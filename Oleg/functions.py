@@ -1,11 +1,11 @@
-import pyttsx3, time, requests, subprocess, webbrowser, random, sys, threading, config # noqa
+import time, requests, subprocess, webbrowser, random, sys, threading, config # noqa
 import speech_recognition as sr
 from utils.anecdote import an
 from utils.formatters import mesh, rub, cop, min
 import datetime as dt
 from time import sleep
 from vk_functions import answer_last_message, last_message, messenger # noqa
-from main import say_text, process_result_and_restart # noqa
+from voice import say_text, process_result_and_restart # noqa
 
 
 # ------------------------------------таймер-------------------------------------
@@ -114,45 +114,26 @@ def what_dey(city = config.UTC_OFFSET):  # city = utc+, по умолчанию 
 
 
 # -------------------------------курс волют к рублю------------------------------
-def currency(cur_name):
-    text_split = cur_name.split(" ")
-
+def currency(currency_name):
     try:
         response = requests.get("https://www.cbr-xml-daily.ru/daily_json.js")
         data = response.json()
         usd_rate = data["Valute"]["USD"]["Value"]
         eur_rate = data["Valute"]["EUR"]["Value"]
-    except:  # noqa
+    except:                                                                          # noqa
         return "Не удалось получить курс с сайта ЦБ"
 
-    if len(text_split) >= 2 and text_split[1] in config.CURRENCY_NAMES.keys():
-        if text_split[1] == "доллара":
-            course = usd_rate
-        else:
-            course = eur_rate
-
+    if currency_name == "доллара" or currency_name == "доллар":
+        course = usd_rate
         rubles = int(course)
         cents = round((course - rubles) * 100)
+        return f"курс доллара {rubles} {rub(rubles)} {cents} {cop(cents)}"
 
-        return f"{cur_name} {rubles} {rub(rubles)} {cents} {cop(cents)}"
-
-    elif len(text_split) >= 2:
-
-        amount = float(text_split[0])
-        currency_key = text_split[1].rstrip('ов')
-
-        if currency_key in config.WORD_CURRENCY:
-            if currency_key == "доллар":
-                rate = usd_rate
-            else:
-                rate = eur_rate
-
-            result = rate * amount
-
-            rubles = int(result)
-            cents = round((result - rubles) * 100)
-
-            return f"{rubles} {rub(rubles)} {cents} {cop(cents)}"
+    elif currency_name == "евро":
+        course = eur_rate
+        rubles = int(course)
+        cents = round((course - rubles) * 100)
+        return f"курс евро {rubles} {rub(rubles)} {cents} {cop(cents)}"
 
     return "Не удалось обработать запрос на курс валют"
 

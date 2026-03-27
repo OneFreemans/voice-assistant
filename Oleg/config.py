@@ -72,7 +72,7 @@ COMMANDS = [
     ("запусти", 1, "run_program", False),
     ("расскажи анекдот", 0, "prank", False),
     ("погода", 0, "what_weather", False),
-    ("курс", 0, "currency", False),
+    ("курс", 1, "currency", False),
     ("какой сегодня день", 0, "what_dey", False),
     ("рассчитай", 1, "calculation_materials", False),
     ("открой", 1, "open_website", False),
