@@ -1,5 +1,12 @@
 from functions import *
 
+#-----------------------------------------tk-------------------------------------
+_status_callback = None
+
+def set_status_callback(callback):
+    global _status_callback
+    _status_callback = callback
+
 
 # -------------------начинаем прослушивание, определение команды-----------------
 def listen_for_command():
@@ -19,6 +26,8 @@ def listen_for_command():
                 sys.exit(0)
 
             elif text in config.JARVIS_COMMANDS:
+                if _status_callback is not None:
+                    _status_callback(1)  # 1 — активирован, жду команду
                 # say_text("Слушаю")
                 return listen_for_command_after_activation()
             else:
@@ -92,6 +101,9 @@ def listen_for_command_after_activation():
             pass
         except Exception as e:
             print(f"Произошла неизвестная ошибка: {e}")
+        finally:
+            if _status_callback is not None:
+                _status_callback(0)  # вернулся в режим ожидания
 
 
 # Запуск программы
