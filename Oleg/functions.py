@@ -103,14 +103,9 @@ def calculation_materials(mat):
 
 
 # ----------------------------------текущий день---------------------------------
-def what_dey(city = config.UTC_OFFSET):  # city = utc+, по умолчанию Кемерово
-    city_dey = dt.datetime.now() + dt.timedelta(hours=city)
-    f_day = city_dey.strftime("%D")
-
-    split_day = f_day.split("/")
-    norm_dey = split_day[1] + "." + split_day[0] + "." + "20" + split_day[2]
-
-    return f"сегодня {norm_dey}"
+def what_dey(city=config.UTC_OFFSET):
+    city_day = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=city)
+    return city_day.strftime("сегодня %d.%m.%Y")
 
 
 # -------------------------------курс волют к рублю------------------------------
@@ -170,22 +165,25 @@ def time_kem():
 
 
 # ---------------------------------погода сегодня--------------------------------
-def what_weather(city = config.DEFAULT_CITY):
+def what_weather(city=config.DEFAULT_CITY):
     url = f'http://wttr.in/{city}'
 
     weather_parameters = {
         'format': 3,
-        'M': ''
+        'M': '',  # скорость ветра в м/с
+        'lang': 'ru',  # язык — русский
+        'A': ''  # отключить цвета (ANSI escape codes)
     }
 
     try:
         response = requests.get(url, params=weather_parameters, timeout=5)
         response.raise_for_status()
 
-        if response.status_code == 200:
-            return response.text[:-2]
-        else:
-            return "Ошибка на сервере погоды"
+        response.encoding = 'utf-8'
+
+        text = response.text.strip()
+
+        return text.replace('\n', '').replace('\r', '')
 
     except requests.ConnectionError:
         return "Сетевая ошибка"
