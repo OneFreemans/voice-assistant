@@ -28,29 +28,31 @@ markdown
 ---
 
 ## 🛠️ Установка
-```bash
+
 1. Клонируй репозиторий:
+```bash
 git clone https://github.com/OneFreemans/voice-assistant.git
 cd voice-assistant
+Создай виртуальное окружение:
 
-2. Создай виртуальное окружение:
+bash
 python -m venv .venv
 source .venv/bin/activate      # Linux/Mac
 .venv\Scripts\activate          # Windows
-
 Установи зависимости:
-pip install -r requirements.txt
 
+bash
+pip install -r requirements.txt
 Настрой переменные окружения:
+
 Скопируй .env.example в .env
 
-Вставь:
-VK_TOKEN=ваш_токен
-MY_USER_ID=ваш_id   
+Вставь свой токен VK и VK_ID
 
 Запусти ассистента:
+
+bash
 python Oleg/main.py
-'''
 📁 Структура проекта
 text
 voice-assistant/
@@ -68,10 +70,9 @@ voice-assistant/
 ├── requirements.txt
 ├── .gitignore
 └── README.md
-'''
 🧪 Тесты
+bash
 pytest Oleg/tests/
-'''
 🧠 Зависимости
 pyttsx3 — голос
 
@@ -83,11 +84,8 @@ vk_api — работа с ВК
 
 pytest — тесты
 
-'''
 📄 Лицензия
 MIT
 
-'''
 ✍️ Автор
 OneFreemans
-
