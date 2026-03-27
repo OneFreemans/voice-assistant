@@ -19,7 +19,9 @@ DEFAULT_CITY = "кемерово"
 PROGRAMS = {
     "steam": "D:\\Steam\\steam.exe",
     "discord": "C:\\Users\\OneFr\\AppData\\Local\\Discord\\Update.exe --processStart Discord.exe",
-    "браузер": "C:\\Users\\OneFr\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe"
+    "браузер": "C:\\Users\\OneFr\\AppData\\Local\\Yandex\\YandexBrowser\\Application\\browser.exe",
+    "телеграм": "E:\\Prog\\Telegram Desktop\\Telegram.exe",
+    "telegram": "E:\\Prog\\Telegram Desktop\\Telegram.exe",
 }
 
 
@@ -33,6 +35,11 @@ WEBSITES = {
     "youtube": "www.youtube.com",
     "2гис": "2gis.ru/kemerovo",
     "авито": "www.avito.ru",
+    "твич": "www.twitch.tv/",
+    "twitch": "www.twitch.tv/",
+    "гит": "https://github.com/OneFreemans/voice-assistant",
+    "git": "https://github.com/OneFreemans/voice-assistant",
+    "музыку": "https://music.yandex.ru/",
 }
 
 
