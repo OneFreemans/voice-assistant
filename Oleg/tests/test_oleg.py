@@ -10,7 +10,6 @@ def test_time_kem():
     """Тест функции времени"""
     result = time_kem()
     assert len(result) == 8, f"Неправильная длина строки: {len(result)} вместо 8"
-    # pytest сам покажет результат, print не нужен
 
 
 def test_what_dey():

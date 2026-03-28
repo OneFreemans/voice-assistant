@@ -1,6 +1,8 @@
 import vk_api
 import os
+import random
 from utils.transformers import transform_data_vk
+from utils.logger import logger
 
 VK_TOKEN = os.getenv("VK_TOKEN", "")
 MY_USER_ID = os.getenv("MY_USER_ID", "")

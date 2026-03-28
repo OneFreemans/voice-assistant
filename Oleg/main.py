@@ -1,4 +1,5 @@
 from functions import *
+from utils.logger import logger
 
 #-----------------------------------------tk-------------------------------------
 _status_callback = None
@@ -16,10 +17,10 @@ def listen_for_command():
         r.adjust_for_ambient_noise(source)
 
         try:
-            print("Ожидаю команду 'Джарвис'...")                              # noqa
+            logger.info("Ожидаю команду 'Джарвис'...")
             audio = r.listen(source, timeout=2, phrase_time_limit=3)
             text = r.recognize_google(audio, language="ru-RU")
-            print(f"Распознано: {text}")
+            logger.debug(f"Распознано: {text}")
 
             if text == "Джарвис стоп":                                         # noqa
                 say_text("Пока")
@@ -36,7 +37,7 @@ def listen_for_command():
         except (sr.UnknownValueError, sr.RequestError, sr.WaitTimeoutError):
             return None
         except Exception as e:
-            print(f"Ошибка: {e}")
+            logger.error(f"Ошибка распознавания: {e}")
             return None
 
 
@@ -46,11 +47,11 @@ def listen_for_command_after_activation():
         r = sr.Recognizer()
 
         try:
-            print("Ожидаю команду...")
+            logger.info("Ожидаю команду...")
             audio = r.listen(source, timeout=5, phrase_time_limit=5)
             text = r.recognize_google(audio, language="ru-RU").lower()
             text_split = text.split(" ")
-            print(f"Команда: {text}")
+            logger.debug(f"Команда: {text}")
 
             # Проверяем все команды из конфига
             for trigger, min_args, func_name, need_timer in config.COMMANDS:
@@ -94,13 +95,13 @@ def listen_for_command_after_activation():
             say_text(f"Я не знаю команду - {text}")
 
         except sr.UnknownValueError:
-            print("Не распознано")
+            logger.debug("Не распознано")
         except sr.RequestError:
-            print("Ошибка сервиса распознавания речи")
+            logger.error("Ошибка сервиса распознавания речи")
         except sr.WaitTimeoutError:
             pass
         except Exception as e:
-            print(f"Произошла неизвестная ошибка: {e}")
+            logger.error(f"Неизвестная ошибка: {e}")
         finally:
             if _status_callback is not None:
                 _status_callback(0)  # вернулся в режим ожидания
@@ -108,14 +109,17 @@ def listen_for_command_after_activation():
 
 # Запуск программы
 if __name__ == "__main__":
-    print("hello world! \nДля активации скажите 'Джарвис'")                # noqa
-    print("Начинаю прослушивание через...")
+    logger.info("Запуск голосового ассистента")
+    logger.info("Для активации скажите 'Джарвис'")
+    logger.info("Начинаю прослушивание через...")
     sleep(1)
     for i in range(3, 0, -1):
         print(i, end="")
         sleep(1)
         if i == 1:
             print("\nГоворите!")
+
+    logger.info("Ожидаю команды...")
 
     while True:
         listen_for_command()

@@ -5,6 +5,7 @@ import os
 
 sys.path.insert(0, os.path.dirname(__file__))
 import main
+from utils.logger import logger
 
 class VoiceGUI:
     def __init__(self, master):
@@ -85,7 +86,7 @@ class VoiceGUI:
             while self.voice_active:
                 main.listen_for_command()
         except Exception as e:
-            print(f"Voice error: {e}")
+            logger.error(f"Voice error: {e}")
             self.root.after(0, self.stop_voice)
 
 

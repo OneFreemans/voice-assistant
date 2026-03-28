@@ -1,21 +1,34 @@
 import pyttsx3
+import threading
+from utils.logger import logger
 
 
 # ---------------------------Функции озвучивания и перезапуска--------------------
 def say_text(text, wait=True):
-    """Озвучивает текст (с пересозданием движка для надежности)"""
-    try:
-        engine = pyttsx3.init()
-        voices = engine.getProperty('voices')
-        for voice in voices:
-            if 'irina' in voice.name.lower():
-                engine.setProperty('voice', voice.id)
-                break
-        engine.say(text)
-        if wait:
+    """Озвучивает текст (создаёт новый движок каждый раз для надёжности)"""
+    def _speak():
+        try:
+            engine = pyttsx3.init()
+            engine.setProperty('rate', 200)  # Скорость речи
+            engine.setProperty('volume', 1.0)  # Громкость
+
+            # Ищем голос Irina
+            for voice in engine.getProperty('voices'):
+                if 'irina' in voice.name.lower():
+                    engine.setProperty('voice', voice.id)
+                    break
+
+            engine.say(text)
             engine.runAndWait()
-    except Exception as e:
-        print(f"Ошибка озвучки: {e}")
+            engine.stop()
+        except Exception as e:
+            logger.error(f"Ошибка озвучки: {e}")
+
+    if wait:
+        _speak()
+    else:
+        thread = threading.Thread(target=_speak, daemon=True)
+        thread.start()
 
 
 def process_result_and_restart(result, success_message=None):
@@ -23,17 +36,17 @@ def process_result_and_restart(result, success_message=None):
     if isinstance(result, dict):
         if 'error' in result:
             say_text(result['error'])
-            print(result['error'])
+            logger.error(result['error'])
         elif 'message' in result:
             say_text(result['message'])
-            print(result['message'])
+            logger.info(result['message'])
         elif 'data' in result:
             say_text(result['data'])
-            print(result['data'])
+            logger.info(result['data'])
     elif result:
         say_text(result)
-        print(result)
+        logger.info(result)
 
     if success_message:
         say_text(success_message)
-        print(success_message)
+        logger.info(success_message)

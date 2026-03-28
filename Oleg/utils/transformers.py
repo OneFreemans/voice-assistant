@@ -1,4 +1,5 @@
 from collections import defaultdict
+from utils.logger import logger
 
 
 # -----------------------------Обработка словаря от ВК-----------------------------
@@ -19,5 +20,5 @@ def transform_data_vk(data):
         return dict(result)
 
     except (KeyError, TypeError) as e:
-        print(f"Ошибка при обработке данных: {e}")
+        logger.error(f"Ошибка при обработке данных VK: {e}")
         return {}

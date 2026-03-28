@@ -6,6 +6,7 @@ import datetime as dt
 from time import sleep
 from vk_functions import answer_last_message, last_message, messenger # noqa
 from voice import say_text, process_result_and_restart # noqa
+from utils.logger import logger
 
 
 # ------------------------------------таймер-------------------------------------
@@ -32,7 +33,7 @@ def run_timer(time_timer, format_timer):
         sleep(int(time_timer) * 60 * 60)
 
     say_text("Время вышло! Время вышло! Время вышло!")
-    print("Время вышло! Время вышло! Время вышло!")
+    logger.info("Таймер завершён")
 
 
 # --------------------------открывает ссылку в браузере--------------------------
@@ -69,7 +70,7 @@ def calculation_materials(mat):
             text = r.recognize_google(audio, language="ru-RU")
             text = text.lower()
             text_split = text.split(" ")
-            print(text, text_split)
+            logger.debug(f"Распознано для расчёта: {text} -> {text_split}")
 
             if len(text_split) >= 3:
                 m2 = float(text_split[0])
