@@ -15,11 +15,11 @@ def my_timer(time_timer, format_timer):
 
     if format_timer in config.MINUTE_FORMATS:
         timer_seconds = int(time_timer) * 60
-        return f"таймер запущен на {time_timer} {for_m}. Таймер завершится через {timer_seconds} секунд"
+        return f"таймер запущен на {time_timer} {for_m}."
 
     elif format_timer in config.HOUR_FORMATS:
         timer_seconds = int(time_timer) * 60 * 60
-        return f"таймер запущен на {time_timer} {format_timer}. Таймер завершится через {timer_seconds} секунд"
+        return f"таймер запущен на {time_timer} {format_timer}."
 
     return f"Неизвестный формат времени: {format_timer}"
 

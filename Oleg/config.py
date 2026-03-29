@@ -1,5 +1,8 @@
+# Импорт утилит для fuzzy matching
+from utils.fuzzy import match_activation_command, FUZZY_THRESHOLD
+
 # Команды для активации
-JARVIS_COMMANDS = ["Jarvis", "Джа", "Джарв", "Джарви", "Джарвис", "Джарвиз", "jarvi", "Джаред", "shareit", "Чарльз", "джар"]
+OLEG_COMMANDS = ["Олег", "Олеже", "Олежа", "Олеж", "Олежка", "Оле", "Олегъ", "олег"]
 
 
 # Типы команд

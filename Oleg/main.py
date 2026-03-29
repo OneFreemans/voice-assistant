@@ -17,18 +17,18 @@ def listen_for_command():
         r.adjust_for_ambient_noise(source)
 
         try:
-            logger.info("Ожидаю команду 'Джарвис'...")
+            logger.info("Ожидаю команду 'Олег'...")
             audio = r.listen(source, timeout=2, phrase_time_limit=3)
             text = r.recognize_google(audio, language="ru-RU")
             logger.debug(f"Распознано: {text}")
 
-            if text == "Джарвис стоп":                                         # noqa
+            if text == "Олег стоп":                                         # noqa
                 say_text("Пока")
                 sys.exit(0)
 
-            elif text in config.JARVIS_COMMANDS:
+            elif config.match_activation_command(text, config.OLEG_COMMANDS):
                 if _status_callback is not None:
-                    _status_callback(1)  # 1 — активирован, жду команду
+                    _status_callback(1)  # 1 — активирован, жду команду   # noqa
                 # say_text("Слушаю")
                 return listen_for_command_after_activation()
             else:
@@ -104,13 +104,13 @@ def listen_for_command_after_activation():
             logger.error(f"Неизвестная ошибка: {e}")
         finally:
             if _status_callback is not None:
-                _status_callback(0)  # вернулся в режим ожидания
+                _status_callback(0)  # вернулся в режим ожидания   # noqa
 
 
 # Запуск программы
 if __name__ == "__main__":
     logger.info("Запуск голосового ассистента")
-    logger.info("Для активации скажите 'Джарвис'")
+    logger.info("Для активации скажите 'Олег'")
     logger.info("Начинаю прослушивание через...")
     sleep(1)
     for i in range(3, 0, -1):
