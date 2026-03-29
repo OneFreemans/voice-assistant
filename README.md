@@ -88,11 +88,15 @@ voice-assistant/
 │   ├── voice.py          # озвучивание
 │   ├── functions.py      # все команды (погода, таймер, ВК...)
 │   ├── vk_functions.py   # работа с VK API
-│   ├── config.py         # настройки, COMMANDS
+│   ├── config.py         # настройки, список команд
+│   ├── tk_gui.py         # графический интерфейс
 │   ├── utils/
+│   │   ├── fuzzy.py      # нечёткое сопоставление (fuzzy matching)
 │   │   ├── formatters.py # склонение слов
 │   │   ├── anecdote.py   # список анекдотов
+│   │   ├── logger.py     # логирование
 │   │   └── transformers.py # преобразование данных
+│   ├── models/           # модели (нейросети)
 │   └── tests/            # тесты
 ├── requirements.txt
 ├── .gitignore
@@ -130,7 +134,4 @@ MIT
 OneFreemans
 ```
 ---
-README СГЕНЕРОВАНО ИИ
-```bash
-deepseek
-```
+
