@@ -52,6 +52,7 @@ def listen_for_command_after_activation():
             text = r.recognize_google(audio, language="ru-RU").lower()
             text_split = text.split(" ")
             logger.debug(f"Команда: {text}")
+            print(f"Команда: {text}")
 
             # Проверяем все команды из конфига
             for trigger, min_args, func_name, need_timer in config.COMMANDS:
@@ -69,13 +70,15 @@ def listen_for_command_after_activation():
                     return
 
                 # Обработка команд с аргументами (например "таймер 5 минут")
-                if trigger == text_split[0] and len(text_split) > min_args:
+                if trigger == text_split[0]:
                     func = globals()[func_name]
 
                     if min_args == 1:
                         result = func(text_split[1])
                     elif min_args == 2:
                         result = func(text_split[1], text_split[2])
+                    elif min_args == 999:
+                        result = func(" ".join(text_split[1:]), text_split[0])
                     else:
                         result = func()
 

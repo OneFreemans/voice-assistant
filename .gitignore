@@ -13,3 +13,4 @@ Oleg/tests/__pycache__/
 Oleg/utils/__pycache__/
 Oleg/.pytest_cache/
 Oleg/tests/THOUGHTS.py
+Oleg/secrets.py

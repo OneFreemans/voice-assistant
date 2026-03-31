@@ -7,7 +7,7 @@ from time import sleep
 from vk_functions import answer_last_message, last_message, messenger # noqa
 from voice import say_text, process_result_and_restart # noqa
 from utils.logger import logger
-
+from smart_home import control_device
 
 # ------------------------------------таймер-------------------------------------
 def my_timer(time_timer, format_timer):
