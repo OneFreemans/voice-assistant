@@ -1,5 +1,4 @@
-# Импорт утилит для fuzzy matching
-from utils.fuzzy import match_activation_command, FUZZY_THRESHOLD
+from utils.fuzzy import match_activation_command, FUZZY_THRESHOLD      # noqa
 
 
 # Яндекс Умный дом
@@ -16,7 +15,7 @@ YANDEX_DEVICE_IDS = {
 
 
 # Команды для активации
-OLEG_COMMANDS = ["Олег", "Олеже", "Олежа", "Олеж", "Олежка", "Оле", "Олегъ", "олег"]
+OLEG_COMMANDS = ["Олег", "Олежа", "Олежка"]
 
 
 # Типы команд

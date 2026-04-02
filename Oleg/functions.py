@@ -9,6 +9,7 @@ from voice import say_text, process_result_and_restart # noqa
 from utils.logger import logger
 from smart_home import control_device
 
+
 # ------------------------------------таймер-------------------------------------
 def my_timer(time_timer, format_timer):
     for_m = min(time_timer)

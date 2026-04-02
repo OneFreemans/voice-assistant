@@ -4,10 +4,12 @@ import threading
 import sys
 import os
 
+
 # Добавляем путь к корневой папке проекта, чтобы импортировать main
 sys.path.insert(0, os.path.dirname(__file__))
 import main
 from utils.logger import logger, set_gui_callback
+
 
 # -------------------------------------------------------------------
 # Класс графического интерфейса голосового ассистента

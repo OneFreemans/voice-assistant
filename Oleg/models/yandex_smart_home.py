@@ -1,6 +1,7 @@
 import requests
 import config
 
+
 class YandexSmartHome:
     def __init__(self, token):
         self.token = token
@@ -54,7 +55,7 @@ class YandexSmartHome:
                 }
             })
 
-        # Яркость (если есть)
+        # Яркость (если есть) не реализована в командах
         if brightness is not None:
             payload["devices"][0]["actions"].append({
                 "type": "devices.capabilities.range",

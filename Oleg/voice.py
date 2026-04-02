@@ -9,7 +9,7 @@ def say_text(text, wait=True):
     def _speak():
         try:
             engine = pyttsx3.init()
-            engine.setProperty('rate', 200)  # Скорость речи
+            engine.setProperty('rate', 240)  # Скорость речи
             engine.setProperty('volume', 1.0)  # Громкость
 
             # Ищем голос Irina
