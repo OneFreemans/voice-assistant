@@ -1,13 +1,10 @@
-import time, requests, subprocess, webbrowser, random, sys, threading, config # noqa
+import time, requests, subprocess, webbrowser, random, config
 import speech_recognition as sr
 from utils.anecdote import an
 from utils.formatters import mesh, rub, cop, min
 import datetime as dt
-from time import sleep
-from vk_functions import answer_last_message, last_message, messenger # noqa
-from voice import say_text, process_result_and_restart # noqa
 from utils.logger import logger
-from smart_home import control_device
+
 
 
 # ------------------------------------таймер-------------------------------------
@@ -29,11 +26,11 @@ def run_timer(time_timer, format_timer):
     """Запускает таймер в отдельном потоке"""
 
     if format_timer in config.MINUTE_FORMATS:
-        sleep(int(time_timer) * 60)
+        time.sleep(int(time_timer) * 60)
     elif format_timer in config.HOUR_FORMATS:
-        sleep(int(time_timer) * 60 * 60)
+        time.sleep(int(time_timer) * 60 * 60)
 
-    say_text("Время вышло! Время вышло! Время вышло!")
+    print("Время вышло! Время вышло! Время вышло!")
     logger.info("Таймер завершён")
 
 
@@ -64,7 +61,7 @@ def calculation_materials(mat):
         r = sr.Recognizer()
         r.adjust_for_ambient_noise(source)
 
-        say_text(f"скажите н квадратов и следом слой икс сантиметров")
+        print(f"скажите н квадратов и следом слой икс сантиметров")
 
         try:
             audio = r.listen(source, phrase_time_limit=3)

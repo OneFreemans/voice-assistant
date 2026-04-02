@@ -1,5 +1,39 @@
-from functions import *
+from functions import (
+    my_timer, time_kem, run_program, prank, what_weather, currency,
+    what_dey, calculation_materials, open_website, search_yandex,
+    print_heart, run_timer
+)
+from vk_functions import last_message, answer_last_message, messenger
+from voice import say_text, process_result_and_restart
+import config
+import sys
+import threading
+import speech_recognition as sr
+from time import sleep
 from utils.logger import logger
+from smart_home import control_device
+
+
+#-------команды(тригер: (функция, кол-во мин арг., нужен ли отдельный поток)------
+COMMANDS = {
+    "таймер": (my_timer, 2, True),
+    "сколько время": (time_kem, 0, False),
+    "запусти": (run_program, 1, False),
+    "расскажи анекдот": (prank, 0, False),
+    "погода": (what_weather, 0, False),
+    "курс": (currency, 0, False),
+    "какой сегодня день": (what_dey, 0, False),
+    "рассчитай": (calculation_materials, 1, False),
+    "открой": (open_website, 1, False),
+    "яндекс": (search_yandex, 0, False),
+    "отправь сообщение": (messenger, 0, False),
+    "последнее сообщение": (last_message, 0, False),
+    "ответь на сообщение": (answer_last_message, 0, False),
+    "сердце": (print_heart, 2, False),
+    "включи": (control_device, 1, False),
+    "выключи": (control_device, 1, False),
+}
+
 
 #-----------------------------------------tk-------------------------------------
 _status_callback = None
@@ -42,49 +76,47 @@ def listen_for_command():
 
 
 def listen_for_command_after_activation():
-    """Прослушивание команд после активации"""
     with sr.Microphone() as source:
         r = sr.Recognizer()
-
         try:
-            logger.info("Ожидаю команду...")
+            print("Ожидаю команду...")
+            if _status_callback is not None:
+                _status_callback(2)
             audio = r.listen(source, timeout=5, phrase_time_limit=5)
             text = r.recognize_google(audio, language="ru-RU").lower()
             text_split = text.split(" ")
-            logger.debug(f"Команда: {text}")
             print(f"Команда: {text}")
 
-            # Проверяем все команды из конфига
-            for trigger, min_args, func_name, need_timer in config.COMMANDS:
+            # Спецобработка стоп
+            if "стоп" in text:
+                say_text("До скорых встреч!")
+                sys.exit(0)
 
-                # Спецобработка для команды "стоп"
-                if trigger == "стоп" and "стоп" in text:
-                    say_text("До скорых встреч!")
-                    sys.exit(0)
+            # Проверяем команды из словаря
+            trigger = text_split[0]
 
-                # Обработка команд с пробелами (например "запусти стим")
-                if " " in trigger and text == trigger:
-                    func = globals()[func_name]
-                    result = func()
-                    process_result_and_restart(result)
-                    return
+            # Спецобработка для управления устройствами (включи/выключи)
+            if trigger in ["включи", "выключи"] and len(text_split) > 1:
+                device = " ".join(text_split[1:])
+                action = trigger
+                result = control_device(device, action)
+                process_result_and_restart(result)
+                return
 
-                # Обработка команд с аргументами (например "таймер 5 минут")
-                if trigger == text_split[0]:
-                    func = globals()[func_name]
-
-                    if min_args == 1:
+            if trigger in COMMANDS:
+                func, min_args, need_timer = COMMANDS[trigger]
+                if len(text_split) > min_args:
+                    if min_args == 0:
+                        result = func()
+                    elif min_args == 1:
                         result = func(text_split[1])
                     elif min_args == 2:
                         result = func(text_split[1], text_split[2])
-                    elif min_args == 999:
-                        result = func(" ".join(text_split[1:]), text_split[0])
                     else:
                         result = func()
 
                     process_result_and_restart(result)
 
-                    # Если это таймер и он запустился
                     if need_timer and result and "таймер запущен" in result:
                         timer_thread = threading.Thread(
                             target=run_timer,
@@ -94,20 +126,18 @@ def listen_for_command_after_activation():
                         timer_thread.start()
                     return
 
-            # Если ни одна команда не подошла
+            # Команды с пробелами (например "сколько время")
+            if text in COMMANDS:
+                func, min_args, need_timer = COMMANDS[text]
+                result = func()
+                process_result_and_restart(result)
+                return
+
+            # Если ничего не нашли
             say_text(f"Я не знаю команду - {text}")
 
-        except sr.UnknownValueError:
-            logger.debug("Не распознано")
-        except sr.RequestError:
-            logger.error("Ошибка сервиса распознавания речи")
-        except sr.WaitTimeoutError:
-            pass
         except Exception as e:
-            logger.error(f"Неизвестная ошибка: {e}")
-        finally:
-            if _status_callback is not None:
-                _status_callback(0)  # вернулся в режим ожидания   # noqa
+            print(f"Ошибка: {e}")
 
 
 # Запуск программы

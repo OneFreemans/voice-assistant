@@ -77,26 +77,3 @@ WORD_CURRENCY = {
     "доллар": "USD",
     "евро": "EUR",
 }
-
-
-# Список команд для обработки
-# Формат: (триггер, минимальное кол-во аргументов, имя функции, нужен ли отдельный поток)
-COMMANDS = [
-    ("стоп", 0, "stop_handler", False),
-    ("таймер", 2, "my_timer", True),
-    ("сколько время", 0, "time_kem", False),
-    ("запусти", 1, "run_program", False),
-    ("расскажи анекдот", 0, "prank", False),
-    ("погода", 0, "what_weather", False),
-    ("курс", 1, "currency", False),
-    ("какой сегодня день", 0, "what_dey", False),
-    ("рассчитай", 1, "calculation_materials", False),
-    ("открой", 1, "open_website", False),
-    ("яндекс", 0, "search_yandex", False),
-    ("отправь сообщение", 0, "messenger", False),
-    ("последнее сообщение", 0, "last_message", False),
-    ("ответь на сообщение", 0, "answer_last_message", False),
-    ("сердце", 2, "print_heart", False),
-    ("включи", 999, "control_device", False),
-    ("выключи", 999, "control_device", False),
-]
