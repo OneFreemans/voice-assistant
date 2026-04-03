@@ -7,19 +7,35 @@ from models.yandex_smart_home import YandexSmartHome
 yh = YandexSmartHome(YANDEX_TOKEN)
 
 
-def control_yandex_device(device_id, action):
-    """Отправляет команду в Яндекс.Умный дом"""
+def control_yandex_device(device_id: str, action: str) -> str:
+    """
+    Отправляет команду в Яндекс.Умный дом.
+
+    Args:
+        device_id: Идентификатор устройства (из config.YANDEX_DEVICE_IDS).
+        action: Действие — 'on' или 'off'.
+
+    Returns:
+        Сообщение об успехе или ошибке.
+    """
     status, response = yh.control_device(device_id, action)
     if status == 200:
-        return f"Устройство {action == 'on' and 'включено' or 'выключено'}"
+        result = "включено" if action == "on" else "выключено"
+        return f"Устройство {result}"
     else:
         return f"Ошибка: {response}"
 
 
-def control_device(device_name, action):
+def control_device(device_name: str, action: str) -> str:
     """
-    device_name: "свет", "розетка" и т.д. (ключ из config.YANDEX_DEVICE_IDS)
-    action: "включи" или "выключи"
+    Управляет устройством умного дома по его имени.
+
+    Args:
+        device_name: Название устройства (ключ из config.YANDEX_DEVICE_IDS).
+        action: Действие — "включи" или "выключи".
+
+    Returns:
+        Сообщение об успехе или ошибке.
     """
     device_id = config.YANDEX_DEVICE_IDS.get(device_name)
     if not device_id:

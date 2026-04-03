@@ -1,5 +1,3 @@
-"""Утилиты для fuzzy matching (нечёткое сопоставление строк)"""
-
 from difflib import SequenceMatcher
 
 # Порог схожести для fuzzy matching (0-100)

@@ -15,7 +15,16 @@ from utils.logger import logger, set_gui_callback
 # Класс графического интерфейса голосового ассистента
 # -------------------------------------------------------------------
 class VoiceGUI:
-    def __init__(self, master):
+    """
+    Графический интерфейс для голосового ассистента на Tkinter.
+
+    Отвечает за:
+    - Запуск и остановку голосового режима
+    - Отображение лога работы
+    - Индикатор состояния (вкл/выкл)
+    - Быстрые команды
+    """
+    def __init__(self, master: tk.Tk) -> None:
         """
         Инициализация интерфейса
         master: корневое окно tkinter
@@ -101,79 +110,87 @@ class VoiceGUI:
         # Автопрокрутка вниз (показывает последние сообщения)
         self.log_area.see(tk.END)
 
-    # -------------------------------------------------------------------
     # Обработчик сообщений из логгера
-    # -------------------------------------------------------------------
-    def on_log(self, message):
-        """Вызывается из логгера при каждом новом сообщении"""
+    def on_log(self, message: str) -> None:
+        """
+        Вызывается из логгера при каждом новом сообщении.
+
+        Args:
+            message: Текст сообщения для отображения в логе.
+        """
         if self.log_area:
             # Безопасная передача из другого потока
             self.root.after(0, lambda: self._append_log(message))
 
-    def _append_log(self, message):
+    def _append_log(self, message: str) -> None:
+        """
+        Добавляет сообщение в лог-поле и прокручивает его вниз.
+
+        Args:
+            message: Текст сообщения для добавления.
+        """
         self.log_area.insert(tk.END, f"{message}\n")
         self.log_area.see(tk.END)
 
-    # -------------------------------------------------------------------
     # Обработчик изменения статуса голосового режима
-    # -------------------------------------------------------------------
-    def on_status(self, status):
+    def on_status(self, status: int) -> None:
         """
-        Вызывается из main.py при смене состояния
-        status == 1: ассистент активирован (сказали "Джарвис") и ждёт команду
-        status == 0: вернулся в режим ожидания
+        Вызывается из main.py при смене состояния.
+
+        Args:
+            status: 1 — ассистент активирован (сказали "Олег"), ждёт команду;
+                    0 — вернулся в режим ожидания.
         """
         if status == 1:
-            self.indicator.itemconfig(1, fill='#33ff33')   # зелёный
+            self.indicator.itemconfig(1, fill='#33ff33')  # зелёный
         elif status == 0:
-            self.indicator.itemconfig(1, fill='#2a2a3a')   # чёрный
+            self.indicator.itemconfig(1, fill='#2a2a3a')  # чёрный
 
-    # -------------------------------------------------------------------
     # Запуск голосового режима
-    # -------------------------------------------------------------------
-    def start_voice(self):
+    def start_voice(self) -> None:
+        """
+        Запускает голосовой режим в отдельном потоке.
+        Обновляет состояние кнопок и индикатора.
+        """
         if not self.voice_active:
             self.voice_active = True
-            # Запускаем голосовой цикл в отдельном потоке, чтобы GUI не зависал
             self.voice_thread = threading.Thread(target=self.voice_loop, daemon=True)
             self.voice_thread.start()
 
-            # Обновляем состояние кнопок и индикатора
             self.start_btn.config(state=tk.DISABLED)
             self.stop_btn.config(state=tk.NORMAL)
-            self.indicator.itemconfig(1, fill='#2a2a3a')   # чёрный
+            self.indicator.itemconfig(1, fill='#2a2a3a')
             self.on_log("🎤 Голосовой режим активирован")
 
-    # -------------------------------------------------------------------
     # Остановка голосового режима
-    # -------------------------------------------------------------------
-    def stop_voice(self):
+    def stop_voice(self) -> None:
+        """
+        Останавливает голосовой режим.
+        Обновляет состояние кнопок и индикатора.
+        """
         self.voice_active = False
         self.start_btn.config(state=tk.NORMAL)
         self.stop_btn.config(state=tk.DISABLED)
-        self.indicator.itemconfig(1, fill='#2a2a3a')   # чёрный
+        self.indicator.itemconfig(1, fill='#2a2a3a')
         self.on_log("🔇 Голосовой режим остановлен")
 
-    # -------------------------------------------------------------------
     # Основной цикл голосового режима (работает в отдельном потоке)
-    # -------------------------------------------------------------------
-    def voice_loop(self):
+    def voice_loop(self) -> None:
+        """
+        Основной цикл голосового режима, работает в отдельном потоке.
+        Вызывает main.listen_for_command() для обработки команд.
+        При ошибке останавливает голосовой режим через главный поток.
+        """
         try:
-            # Запускаем бесконечное прослушивание из main.py
-            # listen_for_command() сам обрабатывает команды и вызывает callback'и
             while self.voice_active:
                 main.listen_for_command()
         except Exception as e:
             logger.error(f"Voice error: {e}")
             self.on_log(f"❌ Ошибка: {e}")
-            # Возвращаемся в главный поток для безопасного вызова stop_voice
             self.root.after(0, self.stop_voice)
 
 
-# -------------------------------------------------------------------
-# Точка входа
-# -------------------------------------------------------------------
 if __name__ == "__main__":
     root = tk.Tk()
     app = VoiceGUI(root)
-    root.mainloop()          # запуск главного цикла tkinter
+    root.mainloop()

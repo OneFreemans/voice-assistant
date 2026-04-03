@@ -12,7 +12,7 @@ import speech_recognition as sr
 from time import sleep
 from utils.logger import logger
 from smart_home import control_device
-
+from typing import Callable
 
 #-------команды(тригер: (функция, кол-во мин арг., нужен ли отдельный поток)------
 COMMANDS = {
@@ -38,14 +38,25 @@ COMMANDS = {
 #-----------------------------------------tk-------------------------------------
 _status_callback = None
 
-def set_status_callback(callback):
+def set_status_callback(callback: Callable[[int], None]) -> None:
+    """
+        Устанавливает функцию обратного вызова для изменения статуса голосового режима.
+
+        Args:
+            callback: Функция, принимающая один аргумент (int: 0 или 1) и возвращающая None.
+        """
     global _status_callback
     _status_callback = callback
 
 
 # -------------------начинаем прослушивание, определение команды-----------------
-def listen_for_command():
-    """Основная функция прослушивания команд"""
+def listen_for_command() -> None:
+    """
+    Основная функция прослушивания команд.
+
+    Слушает микрофон, распознаёт речь и проверяет команду активации "Олег".
+    При успешной активации вызывает listen_for_command_after_activation().
+    """
     with sr.Microphone() as source:
         r = sr.Recognizer()
         r.adjust_for_ambient_noise(source)
@@ -63,7 +74,6 @@ def listen_for_command():
             elif config.match_activation_command(text, config.OLEG_COMMANDS):
                 if _status_callback is not None:
                     _status_callback(1)  # 1 — активирован, жду команду   # noqa
-                # say_text("Слушаю")
                 return listen_for_command_after_activation()
             else:
                 return None
@@ -75,7 +85,13 @@ def listen_for_command():
             return None
 
 
-def listen_for_command_after_activation():
+def listen_for_command_after_activation() -> None:
+    """
+        Прослушивает команды после активации "Олег".
+
+        Обрабатывает спецкоманды (включи/выключи, отправка сообщений ВК),
+        затем проверяет стандартные команды через словарь COMMANDS.
+        """
     with sr.Microphone() as source:
         r = sr.Recognizer()
         try:
