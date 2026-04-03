@@ -1,11 +1,19 @@
 import pyttsx3
 import threading
 from utils.logger import logger
-
+from typing import Optional, Union
 
 # ---------------------------Функции озвучивания и перезапуска--------------------
-def say_text(text, wait=True):
-    """Озвучивает текст (создаёт новый движок каждый раз для надёжности)"""
+def say_text(text: str, wait: bool = True) -> None:
+    """Озвучивает текст (создаёт новый движок каждый раз для надёжности)
+
+    Args:
+        text: Текст для озвучивания
+        wait: Если True — озвучивает синхронно, если False — в отдельном потоке.
+
+    Returns:
+        None
+    """
     def _speak():
         try:
             engine = pyttsx3.init()
@@ -31,8 +39,16 @@ def say_text(text, wait=True):
         thread.start()
 
 
-def process_result_and_restart(result, success_message=None):
-    """Обрабатывает результат функции: выводит, озвучивает"""
+def process_result_and_restart(result: Union[str, dict, None], success_message: Optional[str] = None) -> None:
+    """Обрабатывает результат функции: выводит, озвучивает
+
+    Args:
+        result: Результат функции
+        success_message: Сообщение, которое будет выводиться, если функция успешно выполнена
+
+    Returns:
+        None
+    """
     if isinstance(result, dict):
         if 'error' in result:
             say_text(result['error'])

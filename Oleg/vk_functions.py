@@ -11,14 +11,24 @@ vk = session.get_api()
 
 
 # ---------------------------Ответ на последние сообщение----------------------------
-def answer_last_message(name_message):
+def answer_last_message(message_text: str) -> str:
+    """
+    Пишет сообщение последнему человеку в диалогах.
+
+    Args:
+        message_text: Текст сообщения.
+
+    Returns:
+        Текст об успешной отправки сообщения или ошибку.
+    """
     dialogs = vk.messages.getConversations(count=1)
 
     if dialogs and dialogs['count'] > 0:
         last_dialog = dialogs['items'][0]
         last_message_vk = last_dialog['last_message']
         user_id = last_message_vk['from_id']
-        message = name_message.replace("ответь на сообщение ", "")
+        # Убираем команду "ответь на сообщение" из текста
+        message = message_text.replace("ответь на сообщение ", "")
         session.method("messages.send", {"user_id": user_id, "random_id": 0, "message": message})
 
         user_info = vk.users.get(user_ids=user_id, fields='first_name, last_name')
@@ -31,7 +41,13 @@ def answer_last_message(name_message):
 
 
 # ----------------------------Последние сообщение ВК--------------------------------
-def last_message():
+def last_message() -> str:
+    """
+    Читает последнее сообщение ВК.
+
+    Returns:
+        Текст последнего сообщения или ошибку.
+    """
     dialogs = vk.messages.getConversations(count=1)
 
     if dialogs and dialogs['count'] > 0:
@@ -50,8 +66,17 @@ def last_message():
 
 
 # -----------------------------отправка сообщений вк-----------------------------
-def messenger(name_message):
-    name_and_message = name_message.replace("отправь сообщение ", "")
+def messenger(name_and_messages: str) -> str:
+    """
+    Ищет пользователя в друзьях и отправляет сообщение.
+
+    Args:
+        name_and_messages: Имя фамилия и текст сообщения.
+
+    Returns:
+        Текст успешного отправления сообщения или ошибку.
+    """
+    name_and_message = name_and_messages.replace("отправь сообщение ", "")
     words = name_and_message.split(" ")
 
     if len(words) < 3:

@@ -2,8 +2,9 @@ import sys
 import os
 import pytest
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 from Oleg.main import *
+from Oleg.utils.formatters import mesh, rub, cop, min as format_min
 
 
 def test_time_kem():
@@ -65,12 +66,12 @@ def test_prank():
     (cop, 21, "копейка"),
     (cop, 24, "копейки"),
     # min
-    (min, 1, "минута"),
-    (min, 2, "минуты"),
-    (min, 5, "минут"),
-    (min, 11, "минут"),
-    (min, 21, "минута"),
-    (min, 24, "минуты"),
+    (format_min, 1, "минута"),
+    (format_min, 2, "минуты"),
+    (format_min, 5, "минут"),
+    (format_min, 11, "минут"),
+    (format_min, 21, "минута"),
+    (format_min, 24, "минуты"),
 ])
 def test_formatters_param(func, value, expected):
     """Параметризованный тест для всех склонений"""
