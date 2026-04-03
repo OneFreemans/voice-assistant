@@ -87,22 +87,34 @@ def listen_for_command_after_activation():
             text_split = text.split(" ")
             print(f"Команда: {text}")
 
-            # Спецобработка стоп
+            # ========== СПЕЦОБРАБОТКА ==========
+            # стоп
             if "стоп" in text:
                 say_text("До скорых встреч!")
                 sys.exit(0)
 
-            # Проверяем команды из словаря
-            trigger = text_split[0]
-
-            # Спецобработка для управления устройствами (включи/выключи)
-            if trigger in ["включи", "выключи"] and len(text_split) > 1:
+            # Управление устройствами
+            if text_split[0] in ["включи", "выключи"] and len(text_split) > 1:
                 device = " ".join(text_split[1:])
-                action = trigger
+                action = text_split[0]
                 result = control_device(device, action)
                 process_result_and_restart(result)
                 return
 
+            # Отправка сообщения ВК
+            if text.startswith("отправь сообщение"):
+                result = messenger(text)
+                process_result_and_restart(result)
+                return
+
+            # Ответ на последнее сообщение ВК
+            if text.startswith("ответь на сообщение"):
+                result = answer_last_message(text)
+                process_result_and_restart(result)
+                return
+
+            # ========== ОБЩАЯ ОБРАБОТКА ==========
+            trigger = text_split[0]
             if trigger in COMMANDS:
                 func, min_args, need_timer = COMMANDS[trigger]
                 if len(text_split) > min_args:
