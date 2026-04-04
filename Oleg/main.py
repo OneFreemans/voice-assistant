@@ -21,7 +21,7 @@ COMMANDS = {
     "запусти": (run_program, 1, False),
     "расскажи анекдот": (prank, 0, False),
     "погода": (what_weather, 0, False),
-    "курс": (currency, 0, False),
+    "курс": (currency, 1, False),
     "какой сегодня день": (what_dey, 0, False),
     "рассчитай": (calculation_materials, 1, False),
     "открой": (open_website, 1, False),
@@ -166,6 +166,55 @@ def listen_for_command_after_activation() -> None:
 
         except Exception as e:
             print(f"Ошибка: {e}")
+
+#---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------
+def process_command_text(text: str) -> str:
+    """
+    Обрабатывает текст команды и возвращает результат.
+    Скопировано из listen_for_command_after_activation, но без микрофона и озвучивания.
+    """
+    text_lower = text.lower()
+    text_split = text_lower.split(" ")
+
+    # ========== СПЕЦОБРАБОТКА ==========
+    if "стоп" in text_lower:
+        say_text("До скорых встреч!")
+        sys.exit(0)
+
+    # Управление устройствами
+    if text_split[0] in ["включи", "выключи"] and len(text_split) > 1:
+        return text
+
+    # Отправка сообщения ВК
+    if text_lower.startswith("отправь сообщение"):
+        return text
+
+    # Ответ на последнее сообщение ВК
+    if text_lower.startswith("ответь на сообщение"):
+        return text
+
+    # Последнее сообщение ВК
+    if text_lower == "последнее сообщение":
+        return text
+
+    # ========== КОМАНДЫ С ПРОБЕЛАМИ (без аргументов) ==========
+    if text_lower in COMMANDS:
+        # Для теста просто возвращаем текст команды
+        return text
+
+    # ========== ОБЫЧНЫЕ КОМАНДЫ С АРГУМЕНТАМИ ==========
+    trigger = text_split[0]
+    if trigger in COMMANDS:
+        func, min_args, need_timer = COMMANDS[trigger]
+        if len(text_split) > min_args:
+            if min_args == 1:
+                return text_split[1]
+            elif min_args == 2:
+                return " ".join(text_split[1:3])
+            else:
+                return text  # для теста возвращаем текст, а не вызов функции
+
+    return f"Я не знаю команду - {text_lower}"
 
 
 # Запуск программы

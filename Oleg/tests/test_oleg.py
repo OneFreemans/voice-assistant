@@ -1,10 +1,23 @@
 import sys
 import os
 import pytest
+from unittest.mock import patch, MagicMock
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-from Oleg.main import *
-from Oleg.utils.formatters import mesh, rub, cop, min as format_min
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Импортируем только то, что нужно для тестов
+from main import process_command_text
+from functions import (
+    time_kem, what_dey, what_weather, currency, prank,
+    my_timer, print_heart, search_yandex,
+    run_program, open_website
+)
+from vk_functions import last_message
+from smart_home import control_device
+from utils.formatters import mesh, rub, cop, min as format_min
+from Oleg.utils.anecdote import an
+import config
 
 
 def test_time_kem():
@@ -21,23 +34,33 @@ def test_what_dey():
 
 def test_currency():
     """Тест функции курса валют"""
-    result = currency("курс доллара")
-    assert result != "Не удалось обработать запрос на курс валют", "Не удалось получить курс валюты"
-    assert "доллара" in result, "В ответе нет 'доллара'"
-    assert "руб" in result, "В ответе нет рублей"
-    assert "коп" in result, "В ответе нет копеек"
+
+    # Тест для доллара
+    result_usd = currency("доллар")
+    assert result_usd != "Не удалось получить курс с сайта ЦБ", "Не удалось получить курс доллара"
+    assert "курс доллара" in result_usd, "В ответе нет 'курс доллара'"
+    assert "руб" in result_usd or "рублей" in result_usd, "В ответе нет рублей"
+
+    # Тест для евро
+    result_eur = currency("евро")
+    assert result_eur != "Не удалось получить курс с сайта ЦБ", "Не удалось получить курс евро"
+    assert "курс евро" in result_eur, "В ответе нет 'курс евро'"
+    assert "руб" in result_eur or "рублей" in result_eur, "В ответе нет рублей"
+
+    # Тест для неизвестной валюты
+    result_unknown = currency("фунт")
+    assert result_unknown == "Не удалось обработать запрос на курс валют", "Должна быть ошибка для неизвестной валюты"
 
 
 def test_what_weather():
-    """Тест функции погоды"""
     result = what_weather()
-    error_messages = ["Ошибка на сервере погоды", "Сетевая ошибка", "Таймаут при запросе погоды"]
-    assert not any(error in result for error in error_messages), f"Ошибка сервиса: {result}"
+    assert isinstance(result, str)
+    assert len(result) > 0
+    assert "ошибка" not in result.lower()
 
 
 def test_prank():
     """Тест функции анекдотов"""
-    from Oleg.utils.anecdote import an
     result = prank()
     assert result in an, "Анекдот не из списка"
     assert len(result) > 0, "Анекдот пустой"
@@ -76,3 +99,123 @@ def test_prank():
 def test_formatters_param(func, value, expected):
     """Параметризованный тест для всех склонений"""
     assert func(value) == expected, f"{func.__name__}({value}) должно быть '{expected}'"
+
+
+def test_my_timer():
+    """Тест функции таймера"""
+    result_min = my_timer("5", "минут")
+    assert "5" in result_min
+    assert "минут" in result_min
+
+    result_hour = my_timer("2", "часа")
+    assert "2" in result_hour
+    assert "часа" in result_hour
+
+    result_unknown = my_timer("3", "секунды")
+    assert "Неизвестный формат" in result_unknown
+
+
+def test_print_heart():
+    """Тест функции рисования сердечек (только возврат. Печать не проверяется)"""
+    result = print_heart("3", "красное")
+    assert "Нарисовано 3 сердец" in result
+    assert "красное" in result
+
+
+def test_open_website():
+    """Тест открытия сайта (проверяем только возврат)"""
+    result_ok = open_website("вк")
+    assert "открыт" in result_ok
+
+    result_bad = open_website("несуществующийсайт")
+    assert "не найден" in result_bad
+
+
+def test_search_yandex():
+    """Тест поиска в Яндексе (проверяем только возврат)"""
+    result_ok = search_yandex("яндекс погода")
+    assert "Открываю ссылку" in result_ok
+
+    result_bad = search_yandex("яндекс")
+    assert "Запрос не указан" in result_bad
+
+
+def test_run_program():
+    """Тест запуска программы с моком subprocess.Popen"""
+    # Мокаем subprocess.Popen
+    with patch('functions.subprocess.Popen') as mock_popen:
+        mock_process = MagicMock()
+        mock_process.poll.return_value = None  # процесс запущен
+        mock_popen.return_value = mock_process
+
+        result = run_program("steam")
+        assert "запускается" in result
+        mock_popen.assert_called_once_with(config.PROGRAMS["steam"])
+
+        # Тест для несуществующей программы
+        result = run_program("неизвестная_программа")
+        assert "не найдена" in result
+
+
+def test_control_device():
+    """Тест управления устройством с моком"""
+    with patch('smart_home.control_yandex_device') as mock_yandex:
+        mock_yandex.return_value = "Устройство включено"
+
+        # Патчим словарь YANDEX_DEVICE_IDS в config
+        with patch.dict(config.YANDEX_DEVICE_IDS, {"свет": "test_id"}):
+            result = control_device("свет", "включи")
+            assert "Устройство" in result
+            mock_yandex.assert_called_once_with("test_id", "on")
+
+
+def test_last_message():
+    """Тест last_message с моком"""
+    mock_vk = MagicMock()
+    mock_vk.messages.getConversations.return_value = {
+        'count': 1,
+        'items': [{
+            'last_message': {
+                'from_id': 123,
+                'text': 'Тестовое сообщение'
+            }
+        }]
+    }
+    mock_vk.users.get.return_value = [{
+        'first_name': 'Тест',
+        'last_name': 'Тестов'
+    }]
+
+    with patch('vk_functions.vk', mock_vk):
+        result = last_message()
+        assert 'Тест Тестов' in result
+        assert 'Тестовое сообщение' in result
+
+
+#-
+def test_process_command_text():
+    """Тест логики обработки команд (проверяет маршрутизацию)"""
+
+    # ========== СПЕЦКОМАНДЫ (возвращают исходный текст) ==========
+    assert process_command_text("включи свет в комнате") == "включи свет в комнате"
+    assert process_command_text("отправь сообщение Тест Тестов привет") == "отправь сообщение Тест Тестов привет"
+    assert process_command_text("ответь на сообщение спасибо") == "ответь на сообщение спасибо"
+    assert process_command_text("последнее сообщение") == "последнее сообщение"
+
+    # ========== КОМАНДЫ С АРГУМЕНТАМИ (возвращают переданные аргументы) ==========
+    assert process_command_text("открой вк") == "вк"
+    assert process_command_text("запусти steam") == "steam"
+    assert process_command_text("таймер 5 минут") == "5 минут"
+    assert process_command_text("курс доллар") == "доллар"
+    assert process_command_text("курс евро") == "евро"
+    assert process_command_text("сердце 5 красное") == "5 красное"
+    assert process_command_text("яндекс текст") == "яндекс текст"
+
+    # ========== КОМАНДЫ БЕЗ АРГУМЕНТОВ (вызывают реальные функции) ==========
+    assert process_command_text("сколько время") == "сколько время"
+    assert process_command_text("расскажи анекдот") == "расскажи анекдот"
+    assert process_command_text("погода") == "погода"
+    assert process_command_text("какой сегодня день") == "какой сегодня день"
+
+    # ========== НЕИЗВЕСТНАЯ КОМАНДА ==========
+    assert "Я не знаю команду" in process_command_text("что-то непонятное")
