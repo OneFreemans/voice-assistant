@@ -1,6 +1,7 @@
 # Голосовой ассистент Oleg
 
 Простой голосовой ассистент на Python. Умеет слушать команды, отвечать голосом, работать с ВК, показывать погоду, курс валют, запускать программы, ставить таймеры и **управлять умным домом через Яндекс** (розетки, свет, гирлянды и т.д. Настройки в Oleg/config.py).
+[![Tests](https://img.shields.io/badge/tests-pytest-blue.svg)](https://github.com/OneFreemans/voice-assistant/tree/main/Oleg/tests)
 
 ---
 
