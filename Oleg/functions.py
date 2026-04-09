@@ -104,8 +104,13 @@ def calculation_materials(mat: str) -> str:
         r = sr.Recognizer()
         r.adjust_for_ambient_noise(source)
 
-        print("Скажите: N квадратов и слой X сантиметров")
-
+        print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
+        print("Пример: 40 квадратов 5 сантиметров")
+        for i in range(3, 0, -1):
+            print(i, end="")
+            time.sleep(1)
+            if i == 1:
+                print("\nГоворите!")
         try:
             audio = r.listen(source, phrase_time_limit=3)
             text = r.recognize_google(audio, language="ru-RU").lower()
