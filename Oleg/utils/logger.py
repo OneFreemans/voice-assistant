@@ -18,7 +18,6 @@ def set_gui_callback(callback: Callable[[str], None]) -> None:
     _gui_callback = callback
 
 
-# Кастомный обработчик логов для отправки сообщений в GUI.
 class GuiHandler(logging.Handler):
     """
     Кастомный обработчик логов для отправки сообщений в графический интерфейс.

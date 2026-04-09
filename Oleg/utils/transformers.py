@@ -2,7 +2,7 @@ from collections import defaultdict
 from utils.logger import logger
 from typing import Any
 
-# -----------------------------Обработка словаря от ВК-----------------------------
+
 def transform_data_vk(data: dict[str, Any]) -> dict[str, list[int]]:
     """
     Преобразует ответ VK API в словарь: имя → список ID пользователей.

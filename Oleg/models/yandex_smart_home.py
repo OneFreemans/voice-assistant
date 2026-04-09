@@ -1,5 +1,4 @@
 import requests
-import config
 from typing import Optional, Any, Union
 
 
@@ -33,6 +32,7 @@ class YandexSmartHome:
                 return response.json()
             except requests.JSONDecodeError:
                 return {"error": "Не JSON", "text": response.text}
+
         else:
             return {"error": f"HTTP {response.status_code}", "text": response.text}
 

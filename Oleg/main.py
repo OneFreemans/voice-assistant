@@ -14,6 +14,7 @@ from utils.logger import logger
 from smart_home import control_device
 from typing import Callable
 
+
 #-------команды(тригер: (функция, кол-во мин арг., нужен ли отдельный поток)------
 COMMANDS = {
     "таймер": (my_timer, 2, True),
@@ -67,13 +68,13 @@ def listen_for_command() -> None:
             text = r.recognize_google(audio, language="ru-RU")
             logger.debug(f"Распознано: {text}")
 
-            if text == "Олег стоп":                                         # noqa
+            if text == "Олег стоп":
                 say_text("Пока")
                 sys.exit(0)
 
             elif config.match_activation_command(text, config.OLEG_COMMANDS):
                 if _status_callback is not None:
-                    _status_callback(1)  # 1 — активирован, жду команду   # noqa
+                    _status_callback(1)
                 return listen_for_command_after_activation()
             else:
                 return None
@@ -133,13 +134,17 @@ def listen_for_command_after_activation() -> None:
             trigger = text_split[0]
             if trigger in COMMANDS:
                 func, min_args, need_timer = COMMANDS[trigger]
+
                 if len(text_split) > min_args:
                     if min_args == 0:
                         result = func()
+
                     elif min_args == 1:
                         result = func(text_split[1])
+
                     elif min_args == 2:
                         result = func(text_split[1], text_split[2])
+
                     else:
                         result = func()
 

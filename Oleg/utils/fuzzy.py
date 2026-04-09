@@ -1,5 +1,6 @@
 from difflib import SequenceMatcher
 
+
 # Порог схожести для fuzzy matching (0-100)
 FUZZY_THRESHOLD = 78
 

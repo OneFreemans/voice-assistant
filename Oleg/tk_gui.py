@@ -6,7 +6,7 @@ import os
 
 
 # Добавляем путь к корневой папке проекта, чтобы импортировать main
-sys.path.insert(0, os.path.dirname(__file__))
+sys.path.insert(0, os.path.dirname(__file__))  # FIXME
 import main
 from utils.logger import logger, set_gui_callback
 
@@ -143,6 +143,7 @@ class VoiceGUI:
         """
         if status == 1:
             self.indicator.itemconfig(1, fill='#33ff33')  # зелёный
+
         elif status == 0:
             self.indicator.itemconfig(1, fill='#2a2a3a')  # чёрный
 

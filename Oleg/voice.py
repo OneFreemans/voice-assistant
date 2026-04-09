@@ -3,9 +3,11 @@ import threading
 from utils.logger import logger
 from typing import Optional, Union
 
+
 # ---------------------------Функции озвучивания и перезапуска--------------------
 def say_text(text: str, wait: bool = True) -> None:
-    """Озвучивает текст (создаёт новый движок каждый раз для надёжности)
+    """
+    Озвучивает текст (создаёт новый движок каждый раз для надёжности)
 
     Args:
         text: Текст для озвучивания
@@ -34,6 +36,7 @@ def say_text(text: str, wait: bool = True) -> None:
 
     if wait:
         _speak()
+
     else:
         thread = threading.Thread(target=_speak, daemon=True)
         thread.start()
@@ -53,12 +56,15 @@ def process_result_and_restart(result: Union[str, dict, None], success_message: 
         if 'error' in result:
             say_text(result['error'])
             logger.error(result['error'])
+
         elif 'message' in result:
             say_text(result['message'])
             logger.info(result['message'])
+
         elif 'data' in result:
             say_text(result['data'])
             logger.info(result['data'])
+
     elif result:
         say_text(result)
         logger.info(result)

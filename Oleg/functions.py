@@ -6,7 +6,6 @@ import datetime as dt
 from utils.logger import logger
 
 
-
 # ------------------------------------таймер-------------------------------------
 def my_timer(time_timer: str, format_timer: str) -> str:
     """
@@ -43,6 +42,7 @@ def run_timer(time_timer: str, format_timer: str) -> None:
     """
     if format_timer in config.MINUTE_FORMATS:
         time.sleep(int(time_timer) * 60)
+
     elif format_timer in config.HOUR_FORMATS:
         time.sleep(int(time_timer) * 60 * 60)
 
@@ -230,6 +230,7 @@ def run_program(name_prog: str) -> str:
         # poll() возвращает None, если процесс ещё работает
         if process.poll() is None:
             return f"Программа {name_prog} запускается"
+
         else:
             return f"Не удалось запустить {name_prog}"
     except FileNotFoundError:

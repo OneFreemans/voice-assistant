@@ -1,5 +1,6 @@
 from typing import Union
 
+
 def _format(count: Union[int, str], one: str, few: str, many: str) -> str:
     """
     Базовая функция для склонения слов по правилам русского языка.

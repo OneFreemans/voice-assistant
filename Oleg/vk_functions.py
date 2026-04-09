@@ -1,8 +1,5 @@
 import vk_api
-import os
-import random
 from utils.transformers import transform_data_vk
-from utils.logger import logger
 from secrets import VK_TOKEN, MY_USER_ID
 
 
@@ -93,5 +90,3 @@ def messenger(name_and_messages: str) -> str:
         return f"Сообщение отправлено {name}: {message}"
 
     return f"Пользователь {name} не найден в друзьях"
-
-
