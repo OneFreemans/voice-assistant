@@ -15,7 +15,8 @@ from smart_home import control_device
 from typing import Callable
 
 
-#-------команды(тригер: (функция, кол-во мин арг., нужен ли отдельный поток)------
+#-------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------
+# исключения для мин. арг.: -1 вся строка без триггера; -2 вся строка включая триггер.
 COMMANDS = {
     "таймер": (my_timer, 2, True),
     "сколько время": (time_kem, 0, False),
@@ -26,13 +27,13 @@ COMMANDS = {
     "какой сегодня день": (what_dey, 0, False),
     "рассчитай": (calculation_materials, 1, False),
     "открой": (open_website, 1, False),
-    "яндекс": (search_yandex, 0, False),
-    "отправь сообщение": (messenger, 0, False),
+    "яндекс": (search_yandex, -1, False),
+    "отправь сообщение": (messenger, -1, False),
     "последнее сообщение": (last_message, 0, False),
-    "ответь на сообщение": (answer_last_message, 0, False),
+    "ответь на сообщение": (answer_last_message, -1, False),
     "сердце": (print_heart, 2, False),
-    "включи": (control_device, 1, False),
-    "выключи": (control_device, 1, False),
+    "включи": (control_device, -2, False),
+    "выключи": (control_device, -2, False),
 }
 
 
@@ -88,92 +89,84 @@ def listen_for_command() -> None:
 
 def listen_for_command_after_activation() -> None:
     """
-        Прослушивает команды после активации "Олег".
+    Прослушивает команды после активации "Олег".
 
-        Обрабатывает спецкоманды (включи/выключи, отправка сообщений ВК),
-        затем проверяет стандартные команды через словарь COMMANDS.
-        """
+    Обрабатывает команды через универсальный парсер по словарю COMMANDS.
+    Передаёт требуемые аргументы в функции.
+    """
     with sr.Microphone() as source:
         r = sr.Recognizer()
         try:
-            print("Ожидаю команду...")
+            logger.info("Ожидаю команду...")
             if _status_callback is not None:
                 _status_callback(2)
             audio = r.listen(source, timeout=5, phrase_time_limit=5)
             text = r.recognize_google(audio, language="ru-RU").lower()
-            text_split = text.split(" ")
-            print(f"Команда: {text}")
+            logger.info(f"Команда: {text}")
 
-            # ========== СПЕЦОБРАБОТКА ==========
-            # стоп
             if "стоп" in text:
                 say_text("До скорых встреч!")
                 sys.exit(0)
 
-            # Управление устройствами
-            if text_split[0] in ["включи", "выключи"] and len(text_split) > 1:
-                device = " ".join(text_split[1:])
-                action = text_split[0]
-                result = control_device(device, action)
-                process_result_and_restart(result)
+            # Поиск наиболее длинного совпадающего триггера
+            matched_trigger = None
+            for trigger in sorted(COMMANDS.keys(), key=len, reverse=True):  # сначала длинные
+                if text.startswith(trigger + " ") or text == trigger:
+                    matched_trigger = trigger
+                    break
+
+            if not matched_trigger:
+                say_text(f"Я не знаю команду - {text}")
                 return
 
-            # Отправка сообщения ВК
-            if text.startswith("отправь сообщение"):
-                result = messenger(text)
-                process_result_and_restart(result)
+            func, min_args, need_timer = COMMANDS[matched_trigger]
+
+            # Удаляем триггер из текста
+            args_part = text[len(matched_trigger):].strip()
+
+            # Разбиваем на аргументы
+            args = args_part.split()
+
+            # Проверяем минимальное количество аргументов
+            if min_args > 0 and len(args) < min_args:
+                say_text(f"Команда '{matched_trigger}' требует минимум {min_args} аргументов.")
                 return
 
-            # Ответ на последнее сообщение ВК
-            if text.startswith("ответь на сообщение"):
-                result = answer_last_message(text)
-                process_result_and_restart(result)
-                return
-
-            # ========== ОБЩАЯ ОБРАБОТКА ==========
-            trigger = text_split[0]
-            if trigger in COMMANDS:
-                func, min_args, need_timer = COMMANDS[trigger]
-
-                if len(text_split) > min_args:
-                    if min_args == 0:
-                        result = func()
-
-                    elif min_args == 1:
-                        result = func(text_split[1])
-
-                    elif min_args == 2:
-                        result = func(text_split[1], text_split[2])
-
-                    else:
-                        result = func()
-
-                    process_result_and_restart(result)
-
-                    if need_timer and result and "таймер запущен" in result:
-                        timer_thread = threading.Thread(
-                            target=run_timer,
-                            args=(text_split[1], text_split[2])
-                        )
-                        timer_thread.daemon = True
-                        timer_thread.start()
-                    return
-
-            # Команды с пробелами (например "сколько время")
-            if text in COMMANDS:
-                func, min_args, need_timer = COMMANDS[text]
+            if min_args == 0:
                 result = func()
-                process_result_and_restart(result)
-                return
 
-            # Если ничего не нашли
-            say_text(f"Я не знаю команду - {text}")
+            elif min_args == -2:
+                result = func(matched_trigger, args_part)
+
+            elif min_args == -1:
+                result = func(args_part)
+
+            elif min_args == 1:
+                result = func(args[0])
+
+            elif min_args == 2:
+                result = func(args[0], args[1])
+
+            else:
+                result = func()
+
+            process_result_and_restart(result)
+
+            # Запуск таймера в отдельном потоке
+            if need_timer and result and "таймер запущен" in result:
+                timer_thread = threading.Thread(
+                    target=run_timer,
+                    args=(args[0], args[1])
+                )
+                timer_thread.daemon = True
+                timer_thread.start()
 
         except Exception as e:
             print(f"Ошибка: {e}")
 
+
 #---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------
-def process_command_text(text: str) -> str:
+def process_command_text(text: str) -> str: #FIXME обновить под новый process_command_text
     """
     Обрабатывает текст команды и возвращает результат.
     Скопировано из listen_for_command_after_activation, но без микрофона и озвучивания.
@@ -222,7 +215,6 @@ def process_command_text(text: str) -> str:
     return f"Я не знаю команду - {text_lower}"
 
 
-# Запуск программы
 if __name__ == "__main__":
     logger.info("Запуск голосового ассистента")
     logger.info("Для активации скажите 'Олег'")
@@ -233,8 +225,6 @@ if __name__ == "__main__":
         sleep(1)
         if i == 1:
             print("\nГоворите!")
-
-    logger.info("Ожидаю команды...")
 
     while True:
         listen_for_command()

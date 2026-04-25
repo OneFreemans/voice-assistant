@@ -8,7 +8,7 @@ vk = session.get_api()
 
 
 # ---------------------------Ответ на последние сообщение----------------------------
-def answer_last_message(message_text: str) -> str:
+def answer_last_message(message_text: str) -> str: #FIXME отправляет сообщение себе
     """
     Пишет сообщение последнему человеку в диалогах.
 
@@ -25,14 +25,14 @@ def answer_last_message(message_text: str) -> str:
         last_message_vk = last_dialog['last_message']
         user_id = last_message_vk['from_id']
         # Убираем команду "ответь на сообщение" из текста
-        message = message_text.replace("ответь на сообщение ", "")
-        session.method("messages.send", {"user_id": user_id, "random_id": 0, "message": message})
+        # message = message_text.replace("ответь на сообщение ", "")
+        session.method("messages.send", {"user_id": user_id, "random_id": 0, "message": message_text})
 
         user_info = vk.users.get(user_ids=user_id, fields='first_name, last_name')
         first_name = user_info[0]['first_name']
         last_name = user_info[0]['last_name']
 
-        return f"Доставлено {first_name} {last_name}. Отправленное сообщение: {message}"
+        return f"Доставлено {first_name} {last_name}. Отправленное сообщение: {message_text}"
 
     return "Не удалось получить диалоги или диалоги пусты"
 
@@ -73,14 +73,13 @@ def messenger(name_and_messages: str) -> str:
     Returns:
         Текст успешного отправления сообщения или ошибку.
     """
-    name_and_message = name_and_messages.replace("отправь сообщение ", "")
-    words = name_and_message.split(" ")
+    words = name_and_messages.split(" ")
 
     if len(words) < 3:
         return "Недостаточно данных. Формат: отправь сообщение [Имя Фамилия] [текст сообщения]"
 
     name = words[0] + " " + words[1]
-    message = name_and_message.replace(name, "", 1).strip()
+    message = name_and_messages.replace(name, "", 1).strip()
 
     my_friends = session.method("friends.get", {"user_id": MY_USER_ID, "fields": 0})
     name_id = transform_data_vk(my_friends)

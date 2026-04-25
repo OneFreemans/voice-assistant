@@ -3,7 +3,7 @@ from secrets import YANDEX_TOKEN
 from models.yandex_smart_home import YandexSmartHome
 
 
-# Создаём клиент
+
 yh = YandexSmartHome(YANDEX_TOKEN)
 
 
@@ -27,7 +27,7 @@ def control_yandex_device(device_id: str, action: str) -> str:
         return f"Ошибка: {response}"
 
 
-def control_device(device_name: str, action: str) -> str:
+def control_device(action: str, device_name: str) -> str:
     """
     Управляет устройством умного дома по его имени.
 

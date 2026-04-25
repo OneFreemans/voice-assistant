@@ -3,10 +3,9 @@ import os
 import pytest
 from unittest.mock import patch, MagicMock
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # FIXME через pytest.ini
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# Импортируем только то, что нужно для тестов
 from main import process_command_text
 from functions import (
     time_kem, what_dey, what_weather, currency, prank,
@@ -192,8 +191,8 @@ def test_last_message():
         assert 'Тестовое сообщение' in result
 
 
-#-
-def test_process_command_text():
+
+def test_process_command_text(): #FIXME обновить под новый process_command_text
     """Тест логики обработки команд (проверяет маршрутизацию)"""
 
     # ========== СПЕЦКОМАНДЫ (возвращают исходный текст) ==========

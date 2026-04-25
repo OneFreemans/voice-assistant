@@ -81,7 +81,6 @@ def search_yandex(user_request: str) -> str:
     """
     parts = user_request.split(" ")
     if len(parts) > 1:
-        del parts[0]
         query = "+".join(parts)
         webbrowser.open_new_tab(f'https://yandex.ru/search/?text={query}&lr=64')
         return f"Открываю ссылку по вашему запросу: {query.replace('+', ' ')}"
