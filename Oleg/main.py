@@ -13,6 +13,7 @@ from time import sleep
 from utils.logger import logger
 from smart_home import control_device
 from typing import Callable
+from notes import add_note, list_notes, delete_note
 
 
 #-------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------
@@ -34,6 +35,9 @@ COMMANDS = {
     "сердце": (print_heart, 2, False),
     "включи": (control_device, -2, False),
     "выключи": (control_device, -2, False),
+    "добавь заметку": (add_note, -1, False),
+    "заметки": (list_notes, 0, False),
+    "удали заметку": (delete_note, 1, False),
 }
 
 
