@@ -8,31 +8,9 @@ import json
 import os
 from typing import List, Union
 from utils.logger import logger
-
-
+from  utils.number_utils import extract_number
 
 NOTES_FILE = os.path.join(os.path.dirname(__file__), "notes.json")
-
-
-#=======================================================================
-import re
-WORD_TO_NUMBER = {
-    "один": 1, "два": 2, "три": 3, "четыре": 4, "пять": 5,
-    "шесть": 6, "семь": 7, "восемь": 8, "девять": 9, "десять": 10
-}
-
-
-def extract_number(text: str):
-    match = re.search(r'\d+', text)              #TODO выкинуть в utils
-    if match:
-        return int(match.group())
-
-    if text in WORD_TO_NUMBER:
-        return WORD_TO_NUMBER[text]
-
-    return None
-#========================================================================
-
 
 # ---------- Внутренние функции ----------
 
@@ -98,12 +76,12 @@ def delete_note(number: Union[str, int]) -> str:
     Удалить заметку по индексу (1-based).
 
     Args:
-        number: Номер заметки (1, 2, 3...).
+        number: Номер заметки (1, 2, 3... или "один", "два", "три"...).
 
     Returns:
         Сообщение о результате операции.
     """
-    index = extract_number(number.strip())
+    index = extract_number(number.strip()) # приводит "один" к 1, "два" к 2 и Т.Д..
 
     notes = _load_notes()
 
@@ -151,11 +129,16 @@ def clear_notes() -> str:
     Returns:
         Сообщение о результате операции.
     """
-    _save_notes([])
-    return "Все заметки удалены"
+    ans = input('Заметки будут удалены безвозвратно!\nВы уверены? [y/n]').lower().strip()[0]
+    if ans == "y":
+        _save_notes([])
+        return "Все заметки удалены"
+
+    else:
+        return 'Удаление отменено'
 
 
-# def get_all_notes() -> List[str]: TODO прикрутил к gui
+# def get_all_notes() -> List[str]: TODO прикрутить к gui
 #     """
 #     Получить сырой список заметок (для GUI).
 #
