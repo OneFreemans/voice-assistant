@@ -14,6 +14,7 @@ from utils.logger import logger
 from smart_home import control_device
 from typing import Callable
 from notes import add_note, list_notes, delete_note, clear_notes
+from utils.command_parser import parse_command
 
 
 #-------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------
@@ -103,8 +104,10 @@ def listen_for_command_after_activation() -> None:
         r = sr.Recognizer()
         try:
             logger.info("Ожидаю команду...")
+
             if _status_callback is not None:
                 _status_callback(2)
+
             audio = r.listen(source, timeout=5, phrase_time_limit=5)
             text = r.recognize_google(audio, language="ru-RU").lower()
             logger.info(f"Команда: {text}")
@@ -113,35 +116,25 @@ def listen_for_command_after_activation() -> None:
                 say_text("До скорых встреч!")
                 sys.exit(0)
 
-            # Поиск наиболее длинного совпадающего триггера
-            matched_trigger = None
-            for trigger in sorted(COMMANDS.keys(), key=len, reverse=True):  # сначала длинные
-                if text.startswith(trigger + " ") or text == trigger:
-                    matched_trigger = trigger
-                    break
+            # Парсит полученный текст
+            trigger, args_part, args = parse_command(text, COMMANDS)
 
-            if not matched_trigger:
+            if not trigger:
                 say_text(f"Я не знаю команду - {text}")
                 return
 
-            func, min_args, need_timer = COMMANDS[matched_trigger]
-
-            # Удаляем триггер из текста
-            args_part = text[len(matched_trigger):].strip()
-
-            # Разбиваем на аргументы
-            args = args_part.split()
+            func, min_args, need_timer = COMMANDS[trigger]
 
             # Проверяем минимальное количество аргументов
             if min_args > 0 and len(args) < min_args:
-                say_text(f"Команда '{matched_trigger}' требует минимум {min_args} аргументов.")
+                say_text(f"Команда '{trigger}' требует минимум {min_args} аргументов.")
                 return
 
             if min_args == 0:
                 result = func()
 
             elif min_args == -2:
-                result = func(matched_trigger, args_part)
+                result = func(trigger, args_part)
 
             elif min_args == -1:
                 result = func(args_part)
