@@ -1,5 +1,5 @@
 import requests
-from typing import Optional, Any, Union
+from typing import Optional, Any
 
 
 class YandexSmartHome:

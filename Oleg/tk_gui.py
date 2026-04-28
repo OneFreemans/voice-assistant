@@ -1,13 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import threading
-import sys
-import os
-
-
-# Добавляем путь к корневой папке проекта, чтобы импортировать main
-sys.path.insert(0, os.path.dirname(__file__))  # FIXME
-import main
+from main import set_status_callback, listen_for_command
 from utils.logger import logger, set_gui_callback
 
 
@@ -46,7 +40,7 @@ class VoiceGUI:
 
         # Регистрируем обратный вызов для статуса из main.py
         # main будет вызывать on_status(1) или on_status(0)
-        main.set_status_callback(self.on_status)
+        set_status_callback(self.on_status)
 
         # --- Верхняя часть с индикатором ---
         top_frame = tk.Frame(self.root, bg='#1a1a2e')
@@ -184,7 +178,7 @@ class VoiceGUI:
         """
         try:
             while self.voice_active:
-                main.listen_for_command()
+                listen_for_command()
         except Exception as e:
             logger.error(f"Voice error: {e}")
             self.on_log(f"❌ Ошибка: {e}")

@@ -1,17 +1,11 @@
-import sys
-import os
-import pytest
-from unittest.mock import patch, MagicMock
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))) # FIXME через pytest.ini
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from main import process_command_text
 from functions import (
     time_kem, what_dey, what_weather, currency, prank,
     my_timer, print_heart, search_yandex,
     run_program, open_website
 )
+import pytest
+from unittest.mock import patch, MagicMock
+from main import process_command_text
 from vk_functions import last_message
 from smart_home import control_device
 from utils.formatters import mesh, rub, cop, min as format_min
