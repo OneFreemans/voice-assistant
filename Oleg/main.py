@@ -164,53 +164,43 @@ def listen_for_command_after_activation() -> None:
 
 
 #---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------
-def process_command_text(text: str) -> str: #FIXME обновить под новый process_command_text
+def process_command_text(text: str):
     """
     Обрабатывает текст команды и возвращает результат.
     Скопировано из listen_for_command_after_activation, но без микрофона и озвучивания.
     """
-    text_lower = text.lower()
-    text_split = text_lower.split(" ")
+    if "стоп" in text:
+        return "До скорых встреч!"
 
-    # ========== СПЕЦОБРАБОТКА ==========
-    if "стоп" in text_lower:
-        say_text("До скорых встреч!")
-        sys.exit(0)
+    # Парсит полученный текст
+    trigger, args_part, args = parse_command(text, COMMANDS)
 
-    # Управление устройствами
-    if text_split[0] in ["включи", "выключи"] and len(text_split) > 1:
-        return text
+    if not trigger:
+        return f"Я не знаю команду - {text}"
 
-    # Отправка сообщения ВК
-    if text_lower.startswith("отправь сообщение"):
-        return text
+    func, min_args, need_timer = COMMANDS[trigger]
 
-    # Ответ на последнее сообщение ВК
-    if text_lower.startswith("ответь на сообщение"):
-        return text
+    # Проверяем минимальное количество аргументов
+    if min_args > 0 and len(args) < min_args:
+        return f"Команда '{trigger}' требует минимум {min_args} аргументов."
 
-    # Последнее сообщение ВК
-    if text_lower == "последнее сообщение":
-        return text
+    if min_args == 0:
+        return "нет аргументов"
 
-    # ========== КОМАНДЫ С ПРОБЕЛАМИ (без аргументов) ==========
-    if text_lower in COMMANDS:
-        # Для теста просто возвращаем текст команды
-        return text
+    elif min_args == -2:
+        return trigger, args_part
 
-    # ========== ОБЫЧНЫЕ КОМАНДЫ С АРГУМЕНТАМИ ==========
-    trigger = text_split[0]
-    if trigger in COMMANDS:
-        func, min_args, need_timer = COMMANDS[trigger]
-        if len(text_split) > min_args:
-            if min_args == 1:
-                return text_split[1]
-            elif min_args == 2:
-                return " ".join(text_split[1:3])
-            else:
-                return text  # для теста возвращаем текст, а не вызов функции
+    elif min_args == -1:
+        return args_part
 
-    return f"Я не знаю команду - {text_lower}"
+    elif min_args == 1:
+        return args[0]
+
+    elif min_args == 2:
+        return args[0], args[1]
+
+    else:
+        return "не правильное кол-во аргументов"
 
 
 if __name__ == "__main__":

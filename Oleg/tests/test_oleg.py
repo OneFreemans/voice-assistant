@@ -163,7 +163,7 @@ def test_control_device():
 
         # Патчим словарь YANDEX_DEVICE_IDS в config
         with patch.dict(config.YANDEX_DEVICE_IDS, {"свет": "test_id"}):
-            result = control_device("свет", "включи")
+            result = control_device("включи", "свет")
             assert "Устройство" in result
             mock_yandex.assert_called_once_with("test_id", "on")
 
@@ -191,30 +191,46 @@ def test_last_message():
         assert 'Тестовое сообщение' in result
 
 
+@pytest.mark.parametrize("command, expected", [
+    # ===== КОМАНДЫ С return trigger, args_part (min_args = -2) =====
+    ("включи свет в комнате", ('включи', 'свет в комнате')),
+    ("выключи свет", ('выключи', 'свет')),
 
-def test_process_command_text(): #FIXME обновить под новый process_command_text
-    """Тест логики обработки команд (проверяет маршрутизацию)"""
+    # ===== КОМАНДЫ С return args_part (min_args = -1) =====
+    ("отправь сообщение Тест Тестов привет", "Тест Тестов привет"),
+    ("ответь на сообщение спасибо", "спасибо"),
 
-    # ========== СПЕЦКОМАНДЫ (возвращают исходный текст) ==========
-    assert process_command_text("включи свет в комнате") == "включи свет в комнате"
-    assert process_command_text("отправь сообщение Тест Тестов привет") == "отправь сообщение Тест Тестов привет"
-    assert process_command_text("ответь на сообщение спасибо") == "ответь на сообщение спасибо"
-    assert process_command_text("последнее сообщение") == "последнее сообщение"
+    # ===== КОМАНДЫ С return args[0] (min_args = 1) =====
+    ("открой вк", "вк"),
+    ("запусти steam", "steam"),
+    ("курс доллар", "доллар"),
+    ("курс евро", "евро"),
+    ("удали заметку 5", "5"),
 
-    # ========== КОМАНДЫ С АРГУМЕНТАМИ (возвращают переданные аргументы) ==========
-    assert process_command_text("открой вк") == "вк"
-    assert process_command_text("запусти steam") == "steam"
-    assert process_command_text("таймер 5 минут") == "5 минут"
-    assert process_command_text("курс доллар") == "доллар"
-    assert process_command_text("курс евро") == "евро"
-    assert process_command_text("сердце 5 красное") == "5 красное"
-    assert process_command_text("яндекс текст") == "яндекс текст"
+    # ===== КОМАНДЫ С return (args[0], args[1]) (min_args = 2) =====
+    ("таймер 5 минут", ('5', 'минут')),
+    ("сердце 5 красное", ('5', 'красное')),
 
-    # ========== КОМАНДЫ БЕЗ АРГУМЕНТОВ (вызывают реальные функции) ==========
-    assert process_command_text("сколько время") == "сколько время"
-    assert process_command_text("расскажи анекдот") == "расскажи анекдот"
-    assert process_command_text("погода") == "погода"
-    assert process_command_text("какой сегодня день") == "какой сегодня день"
+    # ===== КОМАНДЫ С return "нет аргументов" (min_args = 0) =====
+    ("последнее сообщение", "нет аргументов"),
+    ("сколько время", "нет аргументов"),
+    ("расскажи анекдот", "нет аргументов"),
+    ("погода", "нет аргументов"),
+    ("какой сегодня день", "нет аргументов"),
+    ("заметки", "нет аргументов"),
+    ("удали все заметки", "нет аргументов"),
+    ("стоп", "До скорых встреч!"),
+])
+def test_process_command_text(command, expected):
+    """Параметризованный тест для проверки маршрутизации команд"""
+    assert process_command_text(command) == expected
 
-    # ========== НЕИЗВЕСТНАЯ КОМАНДА ==========
-    assert "Я не знаю команду" in process_command_text("что-то непонятное")
+
+@pytest.mark.parametrize("command, expected_substring", [
+    ("что-то непонятное", "Я не знаю команду"),
+    ("таймер", "требует минимум 2 аргументов"),
+    ("сердце 5", "требует минимум 2 аргументов"),
+])
+def test_process_command_text_errors(command, expected_substring):
+    """Параметризованный тест для проверки ошибок маршрутизации команд"""
+    assert expected_substring in process_command_text(command)
