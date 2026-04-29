@@ -138,7 +138,7 @@ class VoiceGUI:
         if status == 1:
             self.indicator.itemconfig(1, fill='#33ff33')  # зелёный
 
-        elif status == 0:
+        elif status == 2:
             self.indicator.itemconfig(1, fill='#2a2a3a')  # чёрный
 
     # Запуск голосового режима

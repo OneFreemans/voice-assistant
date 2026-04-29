@@ -105,9 +105,6 @@ def listen_for_command_after_activation() -> None:
         try:
             logger.info("Ожидаю команду...")
 
-            if _status_callback is not None:
-                _status_callback(2)
-
             audio = r.listen(source, timeout=5, phrase_time_limit=5)
             text = r.recognize_google(audio, language="ru-RU").lower()
             logger.info(f"Команда: {text}")
@@ -149,6 +146,9 @@ def listen_for_command_after_activation() -> None:
                 result = func()
 
             process_result_and_restart(result)
+
+            if _status_callback is not None:
+                _status_callback(2)
 
             # Запуск таймера в отдельном потоке
             if need_timer and result and "таймер запущен" in result:
