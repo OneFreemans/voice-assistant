@@ -1,6 +1,6 @@
 import vk_api
-from utils.transformers import transform_data_vk
-from secrets import VK_TOKEN, MY_USER_ID
+from Oleg.utils.transformers import transform_data_vk
+from Oleg.secrets import VK_TOKEN, MY_USER_ID
 
 
 session = vk_api.VkApi(token=VK_TOKEN)

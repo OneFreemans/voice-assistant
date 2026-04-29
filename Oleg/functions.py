@@ -1,9 +1,10 @@
-import time, requests, subprocess, webbrowser, random, config
+import time, requests, subprocess, webbrowser, random
+from Oleg import config
 import speech_recognition as sr
-from utils.anecdote import an
-from utils.formatters import mesh, rub, cop, min as format_min
+from Oleg.utils.anecdote import an
+from Oleg.utils.formatters import mesh, rub, cop, min as format_min
 import datetime as dt
-from utils.logger import logger
+from Oleg.utils.logger import logger
 
 
 # ------------------------------------таймер-------------------------------------

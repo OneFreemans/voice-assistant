@@ -1,17 +1,18 @@
-from functions import (
+from Oleg.functions import (
     time_kem, what_dey, what_weather, currency, prank,
     my_timer, print_heart, search_yandex,
     run_program, open_website
 )
 import pytest
 from unittest.mock import patch, MagicMock
-from main import process_command_text
-from vk_functions import last_message
-from smart_home import control_device
-from utils.formatters import mesh, rub, cop, min as format_min
+from Oleg.main import process_command_text
+from Oleg.vk_functions import last_message
+from Oleg.smart_home import control_device
+from Oleg.utils.formatters import mesh, rub, cop, min as format_min
 from Oleg.utils.anecdote import an
-import config
+from Oleg import config
 
+# pytest --cov=Oleg --cov-report=html
 
 def test_time_kem():
     """Тест функции времени"""
@@ -136,7 +137,7 @@ def test_search_yandex():
 def test_run_program():
     """Тест запуска программы с моком subprocess.Popen"""
     # Мокаем subprocess.Popen
-    with patch('functions.subprocess.Popen') as mock_popen:
+    with patch('Oleg.functions.subprocess.Popen') as mock_popen:
         mock_process = MagicMock()
         mock_process.poll.return_value = None  # процесс запущен
         mock_popen.return_value = mock_process
@@ -152,7 +153,7 @@ def test_run_program():
 
 def test_control_device():
     """Тест управления устройством с моком"""
-    with patch('smart_home.control_yandex_device') as mock_yandex:
+    with patch('Oleg.smart_home.control_yandex_device') as mock_yandex:
         mock_yandex.return_value = "Устройство включено"
 
         # Патчим словарь YANDEX_DEVICE_IDS в config
@@ -179,7 +180,7 @@ def test_last_message():
         'last_name': 'Тестов'
     }]
 
-    with patch('vk_functions.vk', mock_vk):
+    with patch('Oleg.vk_functions.vk', mock_vk):
         result = last_message()
         assert 'Тест Тестов' in result
         assert 'Тестовое сообщение' in result

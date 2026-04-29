@@ -1,6 +1,6 @@
-import config
-from secrets import YANDEX_TOKEN
-from models.yandex_smart_home import YandexSmartHome
+from Oleg import config
+from Oleg.secrets import YANDEX_TOKEN
+from Oleg.models.yandex_smart_home import YandexSmartHome
 
 
 

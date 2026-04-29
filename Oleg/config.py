@@ -1,4 +1,4 @@
-from utils.fuzzy import match_activation_command, FUZZY_THRESHOLD
+from Oleg.utils.fuzzy import match_activation_command, FUZZY_THRESHOLD
 
 
 # Яндекс Умный дом

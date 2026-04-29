@@ -1,6 +1,6 @@
 import pyttsx3
 import threading
-from utils.logger import logger
+from Oleg.utils.logger import logger
 from typing import Optional, Union
 
 

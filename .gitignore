@@ -5,6 +5,7 @@ __pycache__/
 *.pyc
 *.log
 secrets.py
+htmlcov/
 
 # Папки внутри Oleg
 Oleg/__pycache__/

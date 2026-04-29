@@ -7,8 +7,8 @@
 import json
 import os
 from typing import List, Union
-from utils.logger import logger
-from  utils.number_utils import extract_number
+from Oleg.utils.logger import logger
+from  Oleg.utils.number_utils import extract_number
 
 NOTES_FILE = os.path.join(os.path.dirname(__file__), "notes.json")
 
