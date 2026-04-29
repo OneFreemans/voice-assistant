@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import scrolledtext
 import threading
-from main import set_status_callback, listen_for_command
-from utils.logger import logger, set_gui_callback
+from Oleg.main import set_status_callback, listen_for_command
+from Oleg.utils.logger import logger, set_gui_callback
 
 
 # -------------------------------------------------------------------
