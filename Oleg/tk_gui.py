@@ -114,7 +114,7 @@ class VoiceGUI:
         """
         if self.log_area:
             # Безопасная передача из другого потока
-            self.root.after(0, lambda: self._append_log(message))
+            self.root.after(0, self._append_log, message)
 
     def _append_log(self, message: str) -> None:
         """
@@ -182,7 +182,7 @@ class VoiceGUI:
         except Exception as e:
             logger.error(f"Voice error: {e}")
             self.on_log(f"❌ Ошибка: {e}")
-            self.root.after(0, self.stop_voice)
+            self.root.after(0, self.stop_voice)   # noqa
 
 
 if __name__ == "__main__":

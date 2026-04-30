@@ -1,4 +1,4 @@
-from Oleg.utils.fuzzy import match_activation_command, FUZZY_THRESHOLD
+from Oleg.utils.fuzzy import match_activation_command, FUZZY_THRESHOLD   # noqa
 
 
 # Яндекс Умный дом

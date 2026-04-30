@@ -81,7 +81,7 @@ def listen_for_command() -> None:
 
             elif config.match_activation_command(text, config.OLEG_COMMANDS):
                 if _status_callback is not None:
-                    _status_callback(1)
+                    _status_callback(1)   # noqa
                 return listen_for_command_after_activation()
             else:
                 return None
@@ -148,7 +148,7 @@ def listen_for_command_after_activation() -> None:
             process_result_and_restart(result)
 
             if _status_callback is not None:
-                _status_callback(2)
+                _status_callback(2)     # noqa
 
             # Запуск таймера в отдельном потоке
             if need_timer and result and "таймер запущен" in result:
