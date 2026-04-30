@@ -1,0 +1,30 @@
+[run]
+omit =
+    */tk_gui.py
+    */voice.py
+    */tests/*
+    */__pycache__/*
+    */.venv/*
+    Oleg/utils/logger.py
+    Oleg/secrets.py
+    Oleg/tests/commandMl.py
+    Oleg/tests/THOUGHTS.py
+    Oleg/models/yandex_smart_home.py
+    Oleg/vk_functions.py
+    Oleg/utils/transformers.py
+    Oleg/utils/fuzzy.py
+    Oleg/utils/anecdote.py
+    Oleg/utils/__init__.py
+    Oleg/__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError
+    def listen_for_command
+    def listen_for_command_after_activation
+    def set_status_callback
+    def say_text
+    def process_result_and_restart
+    def voice_to_text

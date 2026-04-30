@@ -6,6 +6,7 @@ __pycache__/
 *.log
 secrets.py
 htmlcov/
+.coverage
 
 # Папки внутри Oleg
 Oleg/__pycache__/
