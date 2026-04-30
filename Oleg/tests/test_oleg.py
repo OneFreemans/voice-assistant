@@ -17,6 +17,7 @@ from Oleg.main import process_command_text
 from Oleg.vk_functions import last_message
 from Oleg.smart_home import control_device
 from Oleg.utils.formatters import mesh, rub, cop, min as format_min
+from Oleg.functions import _process_calculation, calculation_materials
 from Oleg.utils.anecdote import an
 from Oleg import config
 import json
@@ -412,3 +413,71 @@ class TestNotes:
         result = clear_notes()
         assert result == "Удаление отменено"
         assert _load_notes() == ["заметка"]
+
+
+class TestCalculationMaterials:
+    """Тесты для расчёта материалов (стяжка, наливной пол)"""
+
+    # ========== ЧИСТАЯ ЛОГИКА (_process_calculation) ==========
+
+    def test_process_calculation_stiazka_ok(self):
+        """Стяжка, правильные данные"""
+        result = _process_calculation("стяжку", "40 квадратов 5 сантиметров")
+        assert "Понадобится" in result
+        assert "мешка" in result
+        assert "материал уйдёт" in result
+        assert "работу возьмите" in result
+
+    def test_process_calculation_nalivnoy_ok(self):
+        """Наливной пол, правильные данные"""
+        result = _process_calculation("наливной", "20 квадратов 3 сантиметра")
+        assert "Понадобится" in result
+        assert "материал уйдёт" in result
+
+    def test_process_calculation_invalid_mat(self):
+        """Неизвестный материал -> ошибка парсинга (так как текст без слов)"""
+        result = _process_calculation("неизвестно", "40 5")
+        assert "Не удалось распознать данные" in result
+
+    def test_process_calculation_too_few_words(self):
+        """Слишком мало слов в тексте"""
+        result = _process_calculation("стяжку", "40 5")
+        assert "Не удалось распознать данные" in result
+
+    def test_process_calculation_invalid_numbers(self):
+        """Не числа вместо данных -> ошибка парсинга (нет слов 'квадратов')"""
+        result = _process_calculation("стяжку", "сорок пять")
+        assert "Не удалось распознать данные" in result
+
+    def test_process_calculation_negative_area(self):
+        """Отрицательная площадь -> ошибка парсинга (нет слов 'квадратов')"""
+        result = _process_calculation("стяжку", "-5 10 сантиметров")
+        assert "Не удалось распознать числа" in result
+
+    def test_process_calculation_zero_thickness(self):
+        """Нулевая толщина -> ошибка парсинга (нет слов 'квадратов')"""
+        result = _process_calculation("стяжку", "10 0")
+        assert "Не удалось распознать данные" in result
+
+    # ========== ИНТЕГРАЦИЯ С ГОЛОСОМ (calculation_materials) ==========
+
+    def test_calculation_materials_voice_ok(self):
+        """Голосовой ввод корректен"""
+        with patch("Oleg.functions.get_text_from_microphone") as mock_voice:
+            mock_voice.return_value = "40 квадратов 5 сантиметров"
+            result = calculation_materials("стяжку")
+            assert "Понадобится" in result
+
+    def test_calculation_materials_voice_none(self):
+        """Микрофон не распознал речь"""
+        with patch("Oleg.functions.get_text_from_microphone") as mock_voice:
+            mock_voice.return_value = None
+            result = calculation_materials("стяжку")
+            assert "Не удалось распознать речь" in result
+
+    def test_calculation_materials_voice_invalid_text(self):
+        """Микрофон вернул мусор"""
+        with patch("Oleg.functions.get_text_from_microphone") as mock_voice:
+            mock_voice.return_value = "мусор"
+            result = calculation_materials("стяжку")
+            assert "Не удалось распознать данные" in result
