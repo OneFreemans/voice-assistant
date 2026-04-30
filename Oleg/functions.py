@@ -1,6 +1,6 @@
 import time, requests, subprocess, webbrowser, random
 from Oleg import config
-import speech_recognition as sr
+from Oleg.voice import get_text_from_microphone
 from Oleg.utils.anecdote import an
 from Oleg.utils.formatters import mesh, rub, cop, min as format_min
 import datetime as dt
@@ -90,64 +90,67 @@ def search_yandex(user_request: str) -> str:
 
 
 # ---------------------------расчет материал для стяжки--------------------------
+def _process_calculation(mat: str, text: str) -> str:
+    """
+    Чистая функция расчёта материалов для стяжки или наливного пола.
+
+    Парсит текст, извлекает площадь и толщину, производит расчёт на основе
+    данных из config.MATERIALS. Не содержит ввода/вывода.
+
+    Args:
+        mat: Тип материала ("стяжку" или "наливной").
+        text: Текст с параметрами, например "40 квадратов 5 сантиметров".
+
+    Returns:
+        str: Результат расчёта или сообщение об ошибке.
+    """
+    parts = text.split(" ")
+
+    if len(parts) < 3:
+        return "Не удалось распознать данные. Попробуйте ещё раз."
+
+    try:
+        area = float(parts[0])
+        thickness = float(parts[2])
+    except ValueError:
+        return "Не удалось распознать числа. Попробуйте ещё раз."
+
+    if area <= 0 or thickness <= 0:
+        return "Площадь и слой должны быть положительными числами."
+
+    if mat not in config.MATERIALS:
+        return f"Материал '{mat}' не найден в базе данных"
+
+    kf, kgm, price_m, price_r = map(int, config.MATERIALS[mat].split(", "))
+    total_kg = thickness * kf * area / kgm
+    total_cost_material = total_kg * price_m
+    total_cost_work = area * price_r
+
+    bags = mesh(int(total_kg))
+    cost_material = rub(int(total_cost_material))
+    cost_work = rub(int(total_cost_work))
+
+    return (f"Понадобится {int(total_kg)} {bags}, на материал уйдёт {int(total_cost_material)} "
+            f"{cost_material}, за работу возьмите {int(total_cost_work)} {cost_work}")
+
+
 def calculation_materials(mat: str) -> str:
     """
     Рассчитывает материалы для стяжки или наливного пола через голосовой ввод.
+
+    Получает текст через микрофон, затем вызывает чистую функцию расчёта.
 
     Args:
         mat: Тип материала ("стяжку" или "наливной").
 
     Returns:
-        Строка с результатом расчёта или сообщение об ошибке.
+        str: Результат расчёта или сообщение об ошибке.
     """
-    with sr.Microphone() as source:
-        r = sr.Recognizer()
-        r.adjust_for_ambient_noise(source)
+    text = get_text_from_microphone()
+    if text is None:
+        return "Не удалось распознать речь. Попробуйте ещё раз."
 
-        print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
-        print("Пример: 40 квадратов 5 сантиметров")
-        for i in range(3, 0, -1):
-            print(i, end="")
-            time.sleep(1)
-            if i == 1:
-                print("\nГоворите!")
-        try:
-            audio = r.listen(source, phrase_time_limit=3)
-            text = r.recognize_google(audio, language="ru-RU").lower()
-            parts = text.split(" ")
-            logger.debug(f"Распознано для расчёта: {text} -> {parts}")
-
-            if len(parts) < 3:
-                return "Не удалось распознать данные. Попробуйте ещё раз."
-
-            try:
-                area = float(parts[0])
-                thickness = float(parts[2])
-            except ValueError:
-                return "Не удалось распознать числа. Попробуйте ещё раз."
-
-            if area <= 0 or thickness <= 0:
-                return "Площадь и слой должны быть положительными числами."
-
-            if mat not in config.MATERIALS:
-                return f"Материал '{mat}' не найден в базе данных"
-
-            kf, kgm, price_m, price_r = map(int, config.MATERIALS[mat].split(", "))
-            total_kg = thickness * kf * area / kgm
-            total_cost_material = total_kg * price_m
-            total_cost_work = area * price_r
-
-            bags = mesh(int(total_kg))
-            cost_material = rub(int(total_cost_material))
-            cost_work = rub(int(total_cost_work))
-
-            return (f"Понадобится {int(total_kg)} {bags}, на материал уйдёт {int(total_cost_material)} "
-                    f"{cost_material}, за работу возьмите {int(total_cost_work)} {cost_work}")
-
-        except sr.UnknownValueError:
-            return "Не удалось распознать речь. Попробуйте ещё раз."
-        except sr.RequestError:
-            return "Ошибка сервиса распознавания речи."
+    return _process_calculation(mat, text)
 
 
 # ----------------------------------текущий день---------------------------------

@@ -1,10 +1,11 @@
 import pyttsx3
 import threading
+import time
 from Oleg.utils.logger import logger
 from typing import Optional, Union
+import speech_recognition as sr
 
-
-# ---------------------------Функции озвучивания и перезапуска--------------------
+# ---------------------------Функции озвучивания и перезапуска ядра--------------------
 def say_text(text: str, wait: bool = True) -> None:
     """
     Озвучивает текст (создаёт новый движок каждый раз для надёжности)
@@ -72,3 +73,37 @@ def process_result_and_restart(result: Union[str, dict, None], success_message: 
     if success_message:
         say_text(success_message)
         logger.info(success_message)
+
+
+# ---------------------------Голосовой ввод для расчета материалов--------------------
+def get_text_from_microphone() -> str | None:
+    """
+    Захватывает речь через микрофон и возвращает распознанный текст.
+    Выводит подсказку для пользователя, ждёт 3 секунды, затем слушает микрофон.
+
+    Returns:
+        str | None: Распознанный текст в нижнем регистре или None при ошибке.
+    """
+    with sr.Microphone() as source:
+        r = sr.Recognizer()
+        r.adjust_for_ambient_noise(source)
+
+        print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
+        print("Пример: 40 квадратов 5 сантиметров")
+        for i in range(3, 0, -1):
+            print(i, end="")
+            time.sleep(1)
+            if i == 1:
+                print("\nГоворите!")
+
+        try:
+            audio = r.listen(source, phrase_time_limit=3)
+            text = r.recognize_google(audio, language="ru-RU").lower()
+            logger.debug(f"Распознано: {text}")
+            return text
+        except sr.UnknownValueError:
+            logger.warning("Речь не распознана")
+            return None
+        except sr.RequestError as e:
+            logger.error(f"Ошибка сервиса распознавания: {e}")
+            return None
