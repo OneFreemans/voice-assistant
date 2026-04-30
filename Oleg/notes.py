@@ -82,6 +82,8 @@ def delete_note(number: Union[str, int]) -> str:
         Сообщение о результате операции.
     """
     index = extract_number(number.strip()) # приводит "один" к 1, "два" к 2 и Т.Д..
+    if index is None or index <= 0:
+        return f"Некорректный номер: {number}"
 
     notes = _load_notes()
 
@@ -129,11 +131,10 @@ def clear_notes() -> str:
     Returns:
         Сообщение о результате операции.
     """
-    ans = input('Заметки будут удалены безвозвратно!\nВы уверены? [y/n]').lower().strip()[0]
-    if ans == "y":
+    ans = input('Заметки будут удалены безвозвратно!\nВы уверены? [y/n]').lower().strip()
+    if ans.startswith('y'):
         _save_notes([])
         return "Все заметки удалены"
-
     else:
         return 'Удаление отменено'
 
