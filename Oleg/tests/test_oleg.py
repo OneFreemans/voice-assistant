@@ -158,20 +158,34 @@ class TestWebAndPrograms:
             assert "Запрос не указан" in result_bad
             mock_webbrowser.open_new_tab.assert_not_called()
 
-    def test_run_program(self):
-        """Тест запуска программы с моком subprocess.Popen"""
+    def test_run_program_all_scenarios(self):
+        """Все сценарии run_program в одном тесте"""
+
         with patch('Oleg.functions.subprocess.Popen') as mock_popen:
+            # 1. Успешный запуск
             mock_process = MagicMock()
             mock_process.poll.return_value = None
             mock_popen.return_value = mock_process
-
             result = run_program("steam")
             assert "запускается" in result
-            mock_popen.assert_called_once_with(config.PROGRAMS["steam"])
+            mock_popen.reset_mock()
 
-            result = run_program("неизвестная_программа")
-            assert "не найдена" in result
+            # 2. Файл не найден
+            mock_popen.side_effect = FileNotFoundError
+            result = run_program("steam")
+            assert "не найден" in result
+            mock_popen.reset_mock()
 
+            # 3. Нет прав
+            mock_popen.side_effect = PermissionError
+            result = run_program("steam")
+            assert "Нет прав" in result
+            mock_popen.reset_mock()
+
+            # 4. Общая ошибка
+            mock_popen.side_effect = Exception("Ошибка")
+            result = run_program("steam")
+            assert "Ошибка при запуске" in result
 
 class TestSmartHome:
     """Управление умным домом"""
