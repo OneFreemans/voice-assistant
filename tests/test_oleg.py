@@ -1,4 +1,4 @@
-from Oleg.functions import (
+from Oleg.commands.functions import (
     time_kem,
     what_dey,
     what_weather,
@@ -10,7 +10,7 @@ from Oleg.functions import (
     run_program,
     open_website,
 )
-from Oleg.notes import (
+from Oleg.commands.notes import (
     _load_notes,
     _save_notes,
     add_note,
@@ -20,11 +20,11 @@ from Oleg.notes import (
 )
 import pytest
 from unittest.mock import patch, MagicMock, mock_open
-from Oleg.main import process_command_text
-from Oleg.vk_functions import last_message
-from Oleg.smart_home import control_device
+from Oleg.core.main import process_command_text
+from Oleg.services.vk_functions import last_message
+from Oleg.commands.smart_home import control_device
 from Oleg.utils.formatters import mesh, rub, cop, min as format_min
-from Oleg.functions import _process_calculation, calculation_materials
+from Oleg.commands.functions import _process_calculation, calculation_materials
 from Oleg.utils.anecdote import an
 from Oleg import config
 import json
@@ -155,7 +155,7 @@ class TestWebAndPrograms:
 
     def test_open_website(self):
         """Тест открытия сайта — мокаем webbrowser, чтобы не открывать браузер"""
-        with patch("Oleg.functions.webbrowser") as mock_webbrowser:
+        with patch("Oleg.commands.functions.webbrowser") as mock_webbrowser:
             result_ok = open_website("вк")
             assert "открыт" in result_ok
             mock_webbrowser.open_new_tab.assert_called_once_with("https://vk.com")
@@ -168,7 +168,7 @@ class TestWebAndPrograms:
 
     def test_search_yandex(self):
         """Тест поиска в Яндексе — мокаем webbrowser"""
-        with patch("Oleg.functions.webbrowser") as mock_webbrowser:
+        with patch("Oleg.commands.functions.webbrowser") as mock_webbrowser:
             result_ok = search_yandex("яндекс погода")
             assert "Открываю ссылку" in result_ok
             mock_webbrowser.open_new_tab.assert_called_once()
@@ -182,7 +182,7 @@ class TestWebAndPrograms:
     def test_run_program_all_scenarios(self):
         """Все сценарии run_program в одном тесте"""
 
-        with patch("Oleg.functions.subprocess.Popen") as mock_popen:
+        with patch("Oleg.commands.functions.subprocess.Popen") as mock_popen:
             # 1. Успешный запуск
             mock_process = MagicMock()
             mock_process.poll.return_value = None
@@ -214,7 +214,7 @@ class TestSmartHome:
 
     def test_control_device(self):
         """Тест управления устройством с моком"""
-        with patch("Oleg.smart_home.control_yandex_device") as mock_yandex:
+        with patch("Oleg.commands.smart_home.control_yandex_device") as mock_yandex:
             mock_yandex.return_value = "Устройство включено"
             with patch.dict(config.YANDEX_DEVICE_IDS, {"свет": "test_id"}):
                 result = control_device("включи", "свет")
@@ -234,7 +234,7 @@ class TestVK:
         }
         mock_vk.users.get.return_value = [{"first_name": "Тест", "last_name": "Тестов"}]
 
-        with patch("Oleg.vk_functions.vk", mock_vk):
+        with patch("Oleg.services.vk_functions.vk", mock_vk):
             result = last_message()
             assert "Тест Тестов" in result
             assert "Тестовое сообщение" in result
@@ -293,7 +293,7 @@ class TestProcessCommand:
 def temp_notes_file(tmp_path):
     """Временный файл для заметок (не мешает реальному)"""
     notes_file = tmp_path / "notes.json"
-    with patch("Oleg.notes.NOTES_FILE", str(notes_file)):
+    with patch("Oleg.commands.notes.NOTES_FILE", str(notes_file)):
         yield notes_file
 
 
@@ -332,7 +332,7 @@ class TestNotes:
             data = json.load(f)
         assert data == {"notes": notes}
 
-    @patch("Oleg.notes.logger")
+    @patch("Oleg.commands.notes.logger")
     def test_save_notes_ioerror(self, mock_logger, temp_notes_file):
         """Ошибка записи → не падает, логирует"""
         with patch("builtins.open", mock_open()) as mock_file:
@@ -494,22 +494,21 @@ class TestCalculationMaterials:
     # ========== ИНТЕГРАЦИЯ С ГОЛОСОМ (calculation_materials) ==========
 
     def test_calculation_materials_voice_ok(self):
-        """Голосовой ввод корректен"""
-        with patch("Oleg.functions.get_text_from_microphone") as mock_voice:
+        with patch("Oleg.commands.functions.get_text_from_microphone") as mock_voice:
             mock_voice.return_value = "40 квадратов 5 сантиметров"
             result = calculation_materials("стяжку")
             assert "Понадобится" in result
 
     def test_calculation_materials_voice_none(self):
         """Микрофон не распознал речь"""
-        with patch("Oleg.functions.get_text_from_microphone") as mock_voice:
+        with patch("Oleg.commands.functions.get_text_from_microphone") as mock_voice:
             mock_voice.return_value = None
             result = calculation_materials("стяжку")
             assert "Не удалось распознать речь" in result
 
     def test_calculation_materials_voice_invalid_text(self):
         """Микрофон вернул мусор"""
-        with patch("Oleg.functions.get_text_from_microphone") as mock_voice:
+        with patch("Oleg.commands.functions.get_text_from_microphone") as mock_voice:
             mock_voice.return_value = "мусор"
             result = calculation_materials("стяжку")
             assert "Не удалось распознать данные" in result

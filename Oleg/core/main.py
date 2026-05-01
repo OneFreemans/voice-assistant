@@ -1,4 +1,4 @@
-from Oleg.functions import (
+from Oleg.commands.functions import (
     my_timer,
     time_kem,
     run_program,
@@ -12,17 +12,17 @@ from Oleg.functions import (
     print_heart,
     run_timer,
 )
-from Oleg.vk_functions import last_message, answer_last_message, messenger
-from Oleg.voice import say_text, process_result_and_restart
+from Oleg.services.vk_functions import last_message, answer_last_message, messenger
+from Oleg.core.voice import say_text, process_result_and_restart
 from Oleg import config
 import sys
 import threading
 import speech_recognition as sr
 from time import sleep
 from Oleg.utils.logger import logger
-from Oleg.smart_home import control_device
+from Oleg.commands.smart_home import control_device
 from typing import Callable
-from Oleg.notes import add_note, list_notes, delete_note, clear_notes
+from Oleg.commands.notes import add_note, list_notes, delete_note, clear_notes
 from Oleg.utils.command_parser import parse_command
 
 # -------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------

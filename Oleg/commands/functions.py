@@ -4,7 +4,7 @@ import subprocess
 import webbrowser
 import random
 from Oleg import config
-from Oleg.voice import get_text_from_microphone
+from Oleg.core.voice import get_text_from_microphone
 from Oleg.utils.anecdote import an
 from Oleg.utils.formatters import mesh, rub, cop, min as format_min
 import datetime as dt
