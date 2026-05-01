@@ -4,8 +4,8 @@ import sys
 from logging.handlers import RotatingFileHandler
 from typing import Callable, Optional
 
-
 _gui_callback: Optional[Callable[[str], None]] = None
+
 
 def set_gui_callback(callback: Callable[[str], None]) -> None:
     """
@@ -22,6 +22,7 @@ class GuiHandler(logging.Handler):
     """
     Кастомный обработчик логов для отправки сообщений в графический интерфейс.
     """
+
     def emit(self, record: logging.LogRecord) -> None:
         """
         Отправляет отформатированное сообщение лога в GUI через колбэк.
@@ -54,8 +55,7 @@ def setup_logger(name: str = "oleg") -> logging.Logger:
     logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(
-        "%(asctime)s | %(levelname)-8s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
+        "%(asctime)s | %(levelname)-8s | %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     # Консольный хендлер (только INFO и выше)
@@ -71,7 +71,7 @@ def setup_logger(name: str = "oleg") -> logging.Logger:
         os.path.join(log_dir, "oleg.log"),
         maxBytes=5 * 1024 * 1024,
         backupCount=3,
-        encoding="utf-8"
+        encoding="utf-8",
     )
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)

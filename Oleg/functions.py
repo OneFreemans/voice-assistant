@@ -1,4 +1,8 @@
-import time, requests, subprocess, webbrowser, random
+import time
+import requests
+import subprocess
+import webbrowser
+import random
 from Oleg import config
 from Oleg.voice import get_text_from_microphone
 from Oleg.utils.anecdote import an
@@ -54,16 +58,16 @@ def run_timer(time_timer: str, format_timer: str) -> None:
 # --------------------------открывает ссылку в браузере--------------------------
 def open_website(website: str) -> str:
     """
-        Открывает указанный сайт в браузере.
+    Открывает указанный сайт в браузере.
 
-        Args:
-            website: Ключ сайта из словаря config.WEBSITES.
+    Args:
+        website: Ключ сайта из словаря config.WEBSITES.
 
-        Returns:
-            Сообщение об успехе или ошибке.
-        """
+    Returns:
+        Сообщение об успехе или ошибке.
+    """
     if website in config.WEBSITES:
-        webbrowser.open_new_tab(f'https://{config.WEBSITES[website]}')
+        webbrowser.open_new_tab(f"https://{config.WEBSITES[website]}")
         return f"{website} открыт"
 
     return f"Сайт '{website}' не найден в базе данных"
@@ -83,7 +87,7 @@ def search_yandex(user_request: str) -> str:
     parts = user_request.split(" ")
     if len(parts) > 1:
         query = "+".join(parts)
-        webbrowser.open_new_tab(f'https://yandex.ru/search/?text={query}&lr=64')
+        webbrowser.open_new_tab(f"https://yandex.ru/search/?text={query}&lr=64")
         return f"Открываю ссылку по вашему запросу: {query.replace('+', ' ')}"
 
     return "Запрос не указан"
@@ -130,8 +134,10 @@ def _process_calculation(mat: str, text: str) -> str:
     cost_material = rub(int(total_cost_material))
     cost_work = rub(int(total_cost_work))
 
-    return (f"Понадобится {int(total_kg)} {bags}, на материал уйдёт {int(total_cost_material)} "
-            f"{cost_material}, за работу возьмите {int(total_cost_work)} {cost_work}")
+    return (
+        f"Понадобится {int(total_kg)} {bags}, на материал уйдёт {int(total_cost_material)} "
+        f"{cost_material}, за работу возьмите {int(total_cost_work)} {cost_work}"
+    )
 
 
 def calculation_materials(mat: str) -> str:
@@ -263,19 +269,19 @@ def what_weather(city: str = config.DEFAULT_CITY) -> str:
     Returns:
         Строка с погодой или сообщение об ошибке.
     """
-    url = f'http://wttr.in/{city}'
+    url = f"http://wttr.in/{city}"
 
     weather_parameters = {
-        'format': '%l: %t %C',  # город: температура + описание
-        'M': '',                # скорость ветра в м/с
-        'lang': 'ru',           # язык — русский
-        'A': ''                 # отключить цвета (ANSI escape codes)
+        "format": "%l: %t %C",  # город: температура + описание
+        "M": "",  # скорость ветра в м/с
+        "lang": "ru",  # язык — русский
+        "A": "",  # отключить цвета (ANSI escape codes)
     }
 
     try:
         response = requests.get(url, params=weather_parameters, timeout=5)
         response.raise_for_status()
-        response.encoding = 'utf-8'
+        response.encoding = "utf-8"
         text = response.text.strip()
         return text
     except requests.ConnectionError:
@@ -307,7 +313,7 @@ def print_heart(amount: str, color: str) -> str:
         "фиолетовое": "\033[95m",
         "голубое": "\033[96m",
         "белое": "\033[97m",
-        "reset": "\033[0m"
+        "reset": "\033[0m",
     }
 
     try:
@@ -326,7 +332,7 @@ def print_heart(amount: str, color: str) -> str:
             "   ♥     ♥   ",
             "    ♥   ♥    ",
             "     ♥ ♥     ",
-            "      ♥      "
+            "      ♥      ",
         ]
         for line in heart_lines:
             print(f"{color_code}{line}{COLORS['reset']}")

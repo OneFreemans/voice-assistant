@@ -5,6 +5,7 @@ from Oleg.utils.logger import logger
 from typing import Optional, Union
 import speech_recognition as sr
 
+
 # ---------------------------Функции озвучивания и перезапуска ядра--------------------
 def say_text(text: str, wait: bool = True) -> None:
     """
@@ -17,16 +18,17 @@ def say_text(text: str, wait: bool = True) -> None:
     Returns:
         None
     """
+
     def _speak():
         try:
             engine = pyttsx3.init()
-            engine.setProperty('rate', 240)  # Скорость речи
-            engine.setProperty('volume', 1.0)  # Громкость
+            engine.setProperty("rate", 240)  # Скорость речи
+            engine.setProperty("volume", 1.0)  # Громкость
 
             # Ищем голос Irina
-            for voice in engine.getProperty('voices'):
-                if 'irina' in voice.name.lower():
-                    engine.setProperty('voice', voice.id)
+            for voice in engine.getProperty("voices"):
+                if "irina" in voice.name.lower():
+                    engine.setProperty("voice", voice.id)
                     break
 
             engine.say(text)
@@ -43,7 +45,9 @@ def say_text(text: str, wait: bool = True) -> None:
         thread.start()
 
 
-def process_result_and_restart(result: Union[str, dict, None], success_message: Optional[str] = None) -> None:
+def process_result_and_restart(
+    result: Union[str, dict, None], success_message: Optional[str] = None
+) -> None:
     """Обрабатывает результат функции: выводит, озвучивает
 
     Args:
@@ -54,17 +58,17 @@ def process_result_and_restart(result: Union[str, dict, None], success_message: 
         None
     """
     if isinstance(result, dict):
-        if 'error' in result:
-            say_text(result['error'])
-            logger.error(result['error'])
+        if "error" in result:
+            say_text(result["error"])
+            logger.error(result["error"])
 
-        elif 'message' in result:
-            say_text(result['message'])
-            logger.info(result['message'])
+        elif "message" in result:
+            say_text(result["message"])
+            logger.info(result["message"])
 
-        elif 'data' in result:
-            say_text(result['data'])
-            logger.info(result['data'])
+        elif "data" in result:
+            say_text(result["data"])
+            logger.info(result["data"])
 
     elif result:
         say_text(result)

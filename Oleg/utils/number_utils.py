@@ -1,10 +1,17 @@
 import re
 from typing import Union
 
-
 WORD_TO_NUMBER = {
-    "один": 1, "два": 2, "три": 3, "четыре": 4, "пять": 5,
-    "шесть": 6, "семь": 7, "восемь": 8, "девять": 9, "десять": 10
+    "один": 1,
+    "два": 2,
+    "три": 3,
+    "четыре": 4,
+    "пять": 5,
+    "шесть": 6,
+    "семь": 7,
+    "восемь": 8,
+    "девять": 9,
+    "десять": 10,
 }
 
 
@@ -27,7 +34,7 @@ def extract_number(text: Union[str, int]):
         >>> extract_number("нет числа")
         None
     """
-    match = re.search(r'\d+', text)
+    match = re.search(r"\d+", text)
     if match:
         return int(match.group())
 

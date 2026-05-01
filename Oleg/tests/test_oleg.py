@@ -1,7 +1,14 @@
 from Oleg.functions import (
-    time_kem, what_dey, what_weather, currency, prank,
-    my_timer, print_heart, search_yandex,
-    run_program, open_website
+    time_kem,
+    what_dey,
+    what_weather,
+    currency,
+    prank,
+    my_timer,
+    print_heart,
+    search_yandex,
+    run_program,
+    open_website,
 )
 from Oleg.notes import (
     _load_notes,
@@ -9,7 +16,7 @@ from Oleg.notes import (
     add_note,
     delete_note,
     list_notes,
-    clear_notes
+    clear_notes,
 )
 import pytest
 from unittest.mock import patch, MagicMock, mock_open
@@ -24,6 +31,7 @@ import json
 
 # pytest --cov=Oleg --cov-report=html
 
+
 class TestBasicFunctions:
     """Базовые функции: время, дата, курс, погода, анекдоты"""
 
@@ -35,25 +43,33 @@ class TestBasicFunctions:
     def test_what_dey(self):
         """Тест функции даты"""
         result = what_dey()
-        assert len(result) == 18, f"what_dey() -> Неправильная длина строки: {len(result)} вместо 18"
+        assert (
+            len(result) == 18
+        ), f"what_dey() -> Неправильная длина строки: {len(result)} вместо 18"
 
     def test_currency(self):
         """Тест функции курса валют"""
         # Тест для доллара
         result_usd = currency("доллар")
-        assert result_usd != "Не удалось получить курс с сайта ЦБ", "Не удалось получить курс доллара"
+        assert (
+            result_usd != "Не удалось получить курс с сайта ЦБ"
+        ), "Не удалось получить курс доллара"
         assert "курс доллара" in result_usd, "В ответе нет 'курс доллара'"
         assert "руб" in result_usd or "рублей" in result_usd, "В ответе нет рублей"
 
         # Тест для евро
         result_eur = currency("евро")
-        assert result_eur != "Не удалось получить курс с сайта ЦБ", "Не удалось получить курс евро"
+        assert (
+            result_eur != "Не удалось получить курс с сайта ЦБ"
+        ), "Не удалось получить курс евро"
         assert "курс евро" in result_eur, "В ответе нет 'курс евро'"
         assert "руб" in result_eur or "рублей" in result_eur, "В ответе нет рублей"
 
         # Тест для неизвестной валюты
         result_unknown = currency("фунт")
-        assert result_unknown == "Не удалось обработать запрос на курс валют", "Должна быть ошибка для неизвестной валюты"
+        assert (
+            result_unknown == "Не удалось обработать запрос на курс валют"
+        ), "Должна быть ошибка для неизвестной валюты"
 
     def test_what_weather(self):
         result = what_weather()
@@ -71,39 +87,44 @@ class TestBasicFunctions:
 class TestFormatters:
     """Тесты форматтеров (склонение слов)"""
 
-    @pytest.mark.parametrize("func, value, expected", [
-        # mesh
-        (mesh, 1, "мешок"),
-        (mesh, 2, "мешка"),
-        (mesh, 5, "мешков"),
-        (mesh, 11, "мешков"),
-        (mesh, 21, "мешок"),
-        (mesh, 24, "мешка"),
-        # rub
-        (rub, 1, "рубль"),
-        (rub, 2, "рубля"),
-        (rub, 5, "рублей"),
-        (rub, 11, "рублей"),
-        (rub, 21, "рубль"),
-        (rub, 24, "рубля"),
-        # cop
-        (cop, 1, "копейка"),
-        (cop, 2, "копейки"),
-        (cop, 5, "копеек"),
-        (cop, 11, "копеек"),
-        (cop, 21, "копейка"),
-        (cop, 24, "копейки"),
-        # min
-        (format_min, 1, "минута"),
-        (format_min, 2, "минуты"),
-        (format_min, 5, "минут"),
-        (format_min, 11, "минут"),
-        (format_min, 21, "минута"),
-        (format_min, 24, "минуты"),
-    ])
+    @pytest.mark.parametrize(
+        "func, value, expected",
+        [
+            # mesh
+            (mesh, 1, "мешок"),
+            (mesh, 2, "мешка"),
+            (mesh, 5, "мешков"),
+            (mesh, 11, "мешков"),
+            (mesh, 21, "мешок"),
+            (mesh, 24, "мешка"),
+            # rub
+            (rub, 1, "рубль"),
+            (rub, 2, "рубля"),
+            (rub, 5, "рублей"),
+            (rub, 11, "рублей"),
+            (rub, 21, "рубль"),
+            (rub, 24, "рубля"),
+            # cop
+            (cop, 1, "копейка"),
+            (cop, 2, "копейки"),
+            (cop, 5, "копеек"),
+            (cop, 11, "копеек"),
+            (cop, 21, "копейка"),
+            (cop, 24, "копейки"),
+            # min
+            (format_min, 1, "минута"),
+            (format_min, 2, "минуты"),
+            (format_min, 5, "минут"),
+            (format_min, 11, "минут"),
+            (format_min, 21, "минута"),
+            (format_min, 24, "минуты"),
+        ],
+    )
     def test_formatters_param(self, func, value, expected):
         """Параметризованный тест для всех склонений"""
-        assert func(value) == expected, f"{func.__name__}({value}) должно быть '{expected}'"
+        assert (
+            func(value) == expected
+        ), f"{func.__name__}({value}) должно быть '{expected}'"
 
 
 class TestTimerAndHeart:
@@ -134,10 +155,10 @@ class TestWebAndPrograms:
 
     def test_open_website(self):
         """Тест открытия сайта — мокаем webbrowser, чтобы не открывать браузер"""
-        with patch('Oleg.functions.webbrowser') as mock_webbrowser:
+        with patch("Oleg.functions.webbrowser") as mock_webbrowser:
             result_ok = open_website("вк")
             assert "открыт" in result_ok
-            mock_webbrowser.open_new_tab.assert_called_once_with('https://vk.com')
+            mock_webbrowser.open_new_tab.assert_called_once_with("https://vk.com")
 
             mock_webbrowser.reset_mock()
 
@@ -147,7 +168,7 @@ class TestWebAndPrograms:
 
     def test_search_yandex(self):
         """Тест поиска в Яндексе — мокаем webbrowser"""
-        with patch('Oleg.functions.webbrowser') as mock_webbrowser:
+        with patch("Oleg.functions.webbrowser") as mock_webbrowser:
             result_ok = search_yandex("яндекс погода")
             assert "Открываю ссылку" in result_ok
             mock_webbrowser.open_new_tab.assert_called_once()
@@ -161,7 +182,7 @@ class TestWebAndPrograms:
     def test_run_program_all_scenarios(self):
         """Все сценарии run_program в одном тесте"""
 
-        with patch('Oleg.functions.subprocess.Popen') as mock_popen:
+        with patch("Oleg.functions.subprocess.Popen") as mock_popen:
             # 1. Успешный запуск
             mock_process = MagicMock()
             mock_process.poll.return_value = None
@@ -187,12 +208,13 @@ class TestWebAndPrograms:
             result = run_program("steam")
             assert "Ошибка при запуске" in result
 
+
 class TestSmartHome:
     """Управление умным домом"""
 
     def test_control_device(self):
         """Тест управления устройством с моком"""
-        with patch('Oleg.smart_home.control_yandex_device') as mock_yandex:
+        with patch("Oleg.smart_home.control_yandex_device") as mock_yandex:
             mock_yandex.return_value = "Устройство включено"
             with patch.dict(config.YANDEX_DEVICE_IDS, {"свет": "test_id"}):
                 result = control_device("включи", "свет")
@@ -207,67 +229,61 @@ class TestVK:
         """Тест last_message с моком"""
         mock_vk = MagicMock()
         mock_vk.messages.getConversations.return_value = {
-            'count': 1,
-            'items': [{
-                'last_message': {
-                    'from_id': 123,
-                    'text': 'Тестовое сообщение'
-                }
-            }]
+            "count": 1,
+            "items": [{"last_message": {"from_id": 123, "text": "Тестовое сообщение"}}],
         }
-        mock_vk.users.get.return_value = [{
-            'first_name': 'Тест',
-            'last_name': 'Тестов'
-        }]
+        mock_vk.users.get.return_value = [{"first_name": "Тест", "last_name": "Тестов"}]
 
-        with patch('Oleg.vk_functions.vk', mock_vk):
+        with patch("Oleg.vk_functions.vk", mock_vk):
             result = last_message()
-            assert 'Тест Тестов' in result
-            assert 'Тестовое сообщение' in result
+            assert "Тест Тестов" in result
+            assert "Тестовое сообщение" in result
 
 
 class TestProcessCommand:
     """Маршрутизация команд"""
 
-    @pytest.mark.parametrize("command, expected", [
-        # КОМАНДЫ С return trigger, args_part (min_args = -2)
-        ("включи свет в комнате", ('включи', 'свет в комнате')),
-        ("выключи свет", ('выключи', 'свет')),
-
-        # КОМАНДЫ С return args_part (min_args = -1)
-        ("отправь сообщение Тест Тестов привет", "Тест Тестов привет"),
-        ("ответь на сообщение спасибо", "спасибо"),
-
-        # КОМАНДЫ С return args[0] (min_args = 1)
-        ("открой вк", "вк"),
-        ("запусти steam", "steam"),
-        ("курс доллар", "доллар"),
-        ("курс евро", "евро"),
-        ("удали заметку 5", "5"),
-
-        # КОМАНДЫ С return (args[0], args[1]) (min_args = 2)
-        ("таймер 5 минут", ('5', 'минут')),
-        ("сердце 5 красное", ('5', 'красное')),
-
-        # КОМАНДЫ С return "нет аргументов" (min_args = 0)
-        ("последнее сообщение", "нет аргументов"),
-        ("сколько время", "нет аргументов"),
-        ("расскажи анекдот", "нет аргументов"),
-        ("погода", "нет аргументов"),
-        ("какой сегодня день", "нет аргументов"),
-        ("заметки", "нет аргументов"),
-        ("удали все заметки", "нет аргументов"),
-        ("стоп", "До скорых встреч!"),
-    ])
+    @pytest.mark.parametrize(
+        "command, expected",
+        [
+            # КОМАНДЫ С return trigger, args_part (min_args = -2)
+            ("включи свет в комнате", ("включи", "свет в комнате")),
+            ("выключи свет", ("выключи", "свет")),
+            # КОМАНДЫ С return args_part (min_args = -1)
+            ("отправь сообщение Тест Тестов привет", "Тест Тестов привет"),
+            ("ответь на сообщение спасибо", "спасибо"),
+            # КОМАНДЫ С return args[0] (min_args = 1)
+            ("открой вк", "вк"),
+            ("запусти steam", "steam"),
+            ("курс доллар", "доллар"),
+            ("курс евро", "евро"),
+            ("удали заметку 5", "5"),
+            # КОМАНДЫ С return (args[0], args[1]) (min_args = 2)
+            ("таймер 5 минут", ("5", "минут")),
+            ("сердце 5 красное", ("5", "красное")),
+            # КОМАНДЫ С return "нет аргументов" (min_args = 0)
+            ("последнее сообщение", "нет аргументов"),
+            ("сколько время", "нет аргументов"),
+            ("расскажи анекдот", "нет аргументов"),
+            ("погода", "нет аргументов"),
+            ("какой сегодня день", "нет аргументов"),
+            ("заметки", "нет аргументов"),
+            ("удали все заметки", "нет аргументов"),
+            ("стоп", "До скорых встреч!"),
+        ],
+    )
     def test_process_command_text(self, command, expected):
         """Параметризованный тест для проверки маршрутизации команд"""
         assert process_command_text(command) == expected
 
-    @pytest.mark.parametrize("command, expected_substring", [
-        ("что-то непонятное", "Я не знаю команду"),
-        ("таймер", "требует минимум 2 аргументов"),
-        ("сердце 5", "требует минимум 2 аргументов"),
-    ])
+    @pytest.mark.parametrize(
+        "command, expected_substring",
+        [
+            ("что-то непонятное", "Я не знаю команду"),
+            ("таймер", "требует минимум 2 аргументов"),
+            ("сердце 5", "требует минимум 2 аргументов"),
+        ],
+    )
     def test_process_command_text_errors(self, command, expected_substring):
         """Параметризованный тест для проверки ошибок маршрутизации команд"""
         assert expected_substring in process_command_text(command)
@@ -302,7 +318,9 @@ class TestNotes:
 
     def test_load_notes_ok(self, temp_notes_file):
         """Нормальный JSON → список заметок"""
-        temp_notes_file.write_text('{"notes": ["купить хлеб", "позвонить маме"]}', encoding="utf-8")
+        temp_notes_file.write_text(
+            '{"notes": ["купить хлеб", "позвонить маме"]}', encoding="utf-8"
+        )
         notes = _load_notes()
         assert notes == ["купить хлеб", "позвонить маме"]
 
@@ -365,9 +383,9 @@ class TestNotes:
         assert result == "Удалена заметка 2: заметка 2"
         assert _load_notes() == ["заметка 1"]
 
-    @pytest.mark.parametrize("word, expected_index", [
-        ("один", 1), ("два", 2), ("три", 3)
-    ])
+    @pytest.mark.parametrize(
+        "word, expected_index", [("один", 1), ("два", 2), ("три", 3)]
+    )
     def test_delete_note_by_word(self, temp_notes_file, word, expected_index):
         """Удаление по слову → удаляется"""
         add_note("заметка 1")

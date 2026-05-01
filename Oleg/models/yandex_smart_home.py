@@ -16,7 +16,7 @@ class YandexSmartHome:
         self.base_url = "https://api.iot.yandex.net/v1.0"
         self.headers = {
             "Authorization": f"Bearer {self.token}",
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
         }
 
     def get_devices(self) -> dict[str, Any]:
@@ -36,7 +36,9 @@ class YandexSmartHome:
         else:
             return {"error": f"HTTP {response.status_code}", "text": response.text}
 
-    def control_device(self, device_id: str, action: str = "on", brightness: Optional[int] = None) -> tuple[int, dict[str, Any]]:
+    def control_device(
+        self, device_id: str, action: str = "on", brightness: Optional[int] = None
+    ) -> tuple[int, dict[str, Any]]:
         """
         Управляет устройством (включение/выключение, изменение яркости).
 
@@ -48,28 +50,28 @@ class YandexSmartHome:
         Returns:
             Кортеж (HTTP-статус, ответ API в виде словаря).
         """
-        payload = {
-            "devices": [{"id": device_id, "actions": []}]
-        }
+        payload = {"devices": [{"id": device_id, "actions": []}]}
 
         # Команда включения/выключения
         if action in ("on", "off"):
-            payload["devices"][0]["actions"].append({
-                "type": "devices.capabilities.on_off",
-                "state": {"instance": "on", "value": action == "on"}
-            })
+            payload["devices"][0]["actions"].append(
+                {
+                    "type": "devices.capabilities.on_off",
+                    "state": {"instance": "on", "value": action == "on"},
+                }
+            )
 
         # Яркость (если указана)
         if brightness is not None:
-            payload["devices"][0]["actions"].append({
-                "type": "devices.capabilities.range",
-                "state": {"instance": "brightness", "value": brightness}
-            })
+            payload["devices"][0]["actions"].append(
+                {
+                    "type": "devices.capabilities.range",
+                    "state": {"instance": "brightness", "value": brightness},
+                }
+            )
 
         response = requests.post(
-            f"{self.base_url}/devices/actions",
-            headers=self.headers,
-            json=payload
+            f"{self.base_url}/devices/actions", headers=self.headers, json=payload
         )
         return response.status_code, response.json()
 
@@ -86,6 +88,6 @@ class YandexSmartHome:
         response = requests.post(
             f"{self.base_url}/scenarios/{scenario_id}/actions",
             headers=self.headers,
-            json={}
+            json={},
         )
         return response.status_code, response.json()

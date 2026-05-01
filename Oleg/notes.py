@@ -4,15 +4,17 @@
 Хранит заметки в JSON-файле, предоставляет функции для добавления,
 удаления, просмотра и очистки через голосовые команды.
 """
+
 import json
 import os
 from typing import List, Union
 from Oleg.utils.logger import logger
-from  Oleg.utils.number_utils import extract_number
+from Oleg.utils.number_utils import extract_number
 
 NOTES_FILE = os.path.join(os.path.dirname(__file__), "notes.json")
 
 # ---------- Внутренние функции ----------
+
 
 def _load_notes() -> List[str]:
     """
@@ -52,6 +54,7 @@ def _save_notes(notes: List[str]) -> None:
 
 # ---------- Публичные функции ----------
 
+
 def add_note(text: str) -> str:
     """
     Добавить новую заметку.
@@ -81,7 +84,7 @@ def delete_note(number: Union[str, int]) -> str:
     Returns:
         Сообщение о результате операции.
     """
-    index = extract_number(number.strip()) # приводит "один" к 1, "два" к 2 и Т.Д..
+    index = extract_number(number.strip())  # приводит "один" к 1, "два" к 2 и Т.Д..
     if index is None or index <= 0:
         return f"Некорректный номер: {number}"
 
@@ -118,7 +121,7 @@ def list_notes() -> str:
     result = "Ваши заметки:\n"
     for i, note in enumerate(notes, 1):
         max_len = 50
-        short_note = note if len(note) <= max_len else note[:max_len - 3] + "..."
+        short_note = note if len(note) <= max_len else note[: max_len - 3] + "..."
         result += f"{i}. {short_note}\n"
 
     return result
@@ -131,12 +134,14 @@ def clear_notes() -> str:
     Returns:
         Сообщение о результате операции.
     """
-    ans = input('Заметки будут удалены безвозвратно!\nВы уверены? [y/n]').lower().strip()
-    if ans.startswith('y'):
+    ans = (
+        input("Заметки будут удалены безвозвратно!\nВы уверены? [y/n]").lower().strip()
+    )
+    if ans.startswith("y"):
         _save_notes([])
         return "Все заметки удалены"
     else:
-        return 'Удаление отменено'
+        return "Удаление отменено"
 
 
 # def get_all_notes() -> List[str]: TODO прикрутить к gui

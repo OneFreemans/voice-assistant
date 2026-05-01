@@ -30,19 +30,19 @@ def _format(count: Union[int, str], one: str, few: str, many: str) -> str:
 
 def mesh(count: int | str) -> str:
     """Возвращает правильную форму слова 'мешок' для числа count."""
-    return _format(count, 'мешок', 'мешка', 'мешков')
+    return _format(count, "мешок", "мешка", "мешков")
 
 
 def rub(count: int | str) -> str:
     """Возвращает правильную форму слова 'рубль' для числа count."""
-    return _format(count, 'рубль', 'рубля', 'рублей')
+    return _format(count, "рубль", "рубля", "рублей")
 
 
 def cop(count: int | str) -> str:
     """Возвращает правильную форму слова 'копейка' для числа count."""
-    return _format(count, 'копейка', 'копейки', 'копеек')
+    return _format(count, "копейка", "копейки", "копеек")
 
 
 def min(count: int | str) -> str:
     """Возвращает правильную форму слова 'минута' для числа count."""
-    return _format(count, 'минута', 'минуты', 'минут')
+    return _format(count, "минута", "минуты", "минут")

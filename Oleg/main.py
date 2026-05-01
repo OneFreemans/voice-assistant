@@ -1,7 +1,16 @@
 from Oleg.functions import (
-    my_timer, time_kem, run_program, prank, what_weather, currency,
-    what_dey, calculation_materials, open_website, search_yandex,
-    print_heart, run_timer
+    my_timer,
+    time_kem,
+    run_program,
+    prank,
+    what_weather,
+    currency,
+    what_dey,
+    calculation_materials,
+    open_website,
+    search_yandex,
+    print_heart,
+    run_timer,
 )
 from Oleg.vk_functions import last_message, answer_last_message, messenger
 from Oleg.voice import say_text, process_result_and_restart
@@ -16,8 +25,7 @@ from typing import Callable
 from Oleg.notes import add_note, list_notes, delete_note, clear_notes
 from Oleg.utils.command_parser import parse_command
 
-
-#-------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------
+# -------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------
 # исключения для мин. арг.: -1 вся строка без триггера; -2 вся строка включая триггер.
 COMMANDS = {
     "таймер": (my_timer, 2, True),
@@ -39,20 +47,21 @@ COMMANDS = {
     "добавь заметку": (add_note, -1, False),
     "заметки": (list_notes, 0, False),
     "удали заметку": (delete_note, 1, False),
-    "удали все заметки": (clear_notes, 0 ,False),
+    "удали все заметки": (clear_notes, 0, False),
 }
 
 
-#-----------------------------------------tk-------------------------------------
+# -----------------------------------------tk-------------------------------------
 _status_callback = None
+
 
 def set_status_callback(callback: Callable[[int], None]) -> None:
     """
-        Устанавливает функцию обратного вызова для изменения статуса голосового режима.
+    Устанавливает функцию обратного вызова для изменения статуса голосового режима.
 
-        Args:
-            callback: Функция, принимающая один аргумент (int: 0 или 1) и возвращающая None.
-        """
+    Args:
+        callback: Функция, принимающая один аргумент (int: 0 или 1) и возвращающая None.
+    """
     global _status_callback
     _status_callback = callback
 
@@ -81,7 +90,7 @@ def listen_for_command() -> None:
 
             elif config.match_activation_command(text, config.OLEG_COMMANDS):
                 if _status_callback is not None:
-                    _status_callback(1)   # noqa
+                    _status_callback(1)  # noqa
                 return listen_for_command_after_activation()
             else:
                 return None
@@ -148,13 +157,12 @@ def listen_for_command_after_activation() -> None:
             process_result_and_restart(result)
 
             if _status_callback is not None:
-                _status_callback(2)     # noqa
+                _status_callback(2)  # noqa
 
             # Запуск таймера в отдельном потоке
             if need_timer and result and "таймер запущен" in result:
                 timer_thread = threading.Thread(
-                    target=run_timer,
-                    args=(args[0], args[1])
+                    target=run_timer, args=(args[0], args[1])
                 )
                 timer_thread.daemon = True
                 timer_thread.start()
@@ -163,7 +171,7 @@ def listen_for_command_after_activation() -> None:
             print(f"Ошибка: {e}")
 
 
-#---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------
+# ---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------
 def process_command_text(text: str):
     """
     Обрабатывает текст команды и возвращает результат.

@@ -15,7 +15,7 @@ def transform_data_vk(data: dict[str, Any]) -> dict[str, list[int]]:
         значение — список ID пользователей с таким именем.
     """
     try:
-        data_items = data.get('items', [])
+        data_items = data.get("items", [])
 
         if not data_items:
             return {}
@@ -25,7 +25,7 @@ def transform_data_vk(data: dict[str, Any]) -> dict[str, list[int]]:
         for item in data_items:
             full_name = f"{item['first_name']} {item['last_name']}"
             full_name = full_name.lower()
-            result[full_name].append(item['id'])
+            result[full_name].append(item["id"])
 
         return dict(result)
 
