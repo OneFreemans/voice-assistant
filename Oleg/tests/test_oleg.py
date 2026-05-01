@@ -43,33 +43,33 @@ class TestBasicFunctions:
     def test_what_dey(self):
         """Тест функции даты"""
         result = what_dey()
-        assert (
-            len(result) == 18
-        ), f"what_dey() -> Неправильная длина строки: {len(result)} вместо 18"
+        assert len(result) == 18, (
+            f"what_dey() -> Неправильная длина строки: {len(result)} вместо 18"
+        )
 
     def test_currency(self):
         """Тест функции курса валют"""
         # Тест для доллара
         result_usd = currency("доллар")
-        assert (
-            result_usd != "Не удалось получить курс с сайта ЦБ"
-        ), "Не удалось получить курс доллара"
+        assert result_usd != "Не удалось получить курс с сайта ЦБ", (
+            "Не удалось получить курс доллара"
+        )
         assert "курс доллара" in result_usd, "В ответе нет 'курс доллара'"
         assert "руб" in result_usd or "рублей" in result_usd, "В ответе нет рублей"
 
         # Тест для евро
         result_eur = currency("евро")
-        assert (
-            result_eur != "Не удалось получить курс с сайта ЦБ"
-        ), "Не удалось получить курс евро"
+        assert result_eur != "Не удалось получить курс с сайта ЦБ", (
+            "Не удалось получить курс евро"
+        )
         assert "курс евро" in result_eur, "В ответе нет 'курс евро'"
         assert "руб" in result_eur or "рублей" in result_eur, "В ответе нет рублей"
 
         # Тест для неизвестной валюты
         result_unknown = currency("фунт")
-        assert (
-            result_unknown == "Не удалось обработать запрос на курс валют"
-        ), "Должна быть ошибка для неизвестной валюты"
+        assert result_unknown == "Не удалось обработать запрос на курс валют", (
+            "Должна быть ошибка для неизвестной валюты"
+        )
 
     def test_what_weather(self):
         result = what_weather()
@@ -122,9 +122,9 @@ class TestFormatters:
     )
     def test_formatters_param(self, func, value, expected):
         """Параметризованный тест для всех склонений"""
-        assert (
-            func(value) == expected
-        ), f"{func.__name__}({value}) должно быть '{expected}'"
+        assert func(value) == expected, (
+            f"{func.__name__}({value}) должно быть '{expected}'"
+        )
 
 
 class TestTimerAndHeart:
