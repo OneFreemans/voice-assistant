@@ -116,7 +116,7 @@ def listen_for_command_after_activation() -> None:
 
             audio = r.listen(source, timeout=5, phrase_time_limit=5)
             text = r.recognize_google(audio, language="ru-RU").lower()
-            logger.info(f"Команда: {text}")
+            logger.debug(f"Команда: {text}")
 
             if "стоп" in text:
                 say_text("До скорых встреч!")
