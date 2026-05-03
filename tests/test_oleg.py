@@ -25,6 +25,7 @@ from Oleg.services.vk_functions import last_message
 from Oleg.commands.smart_home import control_device
 from Oleg.utils.formatters import mesh, rub, cop, min as format_min
 from Oleg.commands.functions import _process_calculation, calculation_materials
+from Oleg.commands.ai_chat import ask_ai
 from Oleg.utils.anecdote import an
 from Oleg import config
 import json
@@ -512,3 +513,120 @@ class TestCalculationMaterials:
             mock_voice.return_value = "мусор"
             result = calculation_materials("стяжку")
             assert "Не удалось распознать данные" in result
+
+
+class TestAiChat:
+    """Тесты для функций AI-собеседника (без реальных API-вызовов)."""
+
+    # ========== ТЕСТЫ ask_ai ==========
+
+    @patch("Oleg.commands.ai_chat.requests.post")
+    def test_ask_ai_success(self, mock_post):
+        """Успешный запрос к API: возвращается ответ и обновляется история."""
+        # Подменяем ответ API
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "choices": [{"message": {"content": "Привет, брат!"}}]
+        }
+        mock_post.return_value = mock_response
+
+        answer, history = ask_ai("как дела?", [])
+
+        assert answer == "Привет, брат!"
+        assert len(history) == 2
+        assert history[0]["role"] == "user"
+        assert history[0]["content"] == "как дела?"
+        assert history[1]["role"] == "assistant"
+        assert history[1]["content"] == "Привет, брат!"
+
+        # Проверяем, что запрос ушёл с правильными параметрами
+        mock_post.assert_called_once()
+        call_args = mock_post.call_args
+        assert call_args[1]["json"]["model"] == "deepseek-chat"
+
+    @patch("Oleg.commands.ai_chat.requests.post")
+    def test_ask_ai_with_history(self, mock_post):
+        """Запрос с историей: история правильно расширяется."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {
+            "choices": [{"message": {"content": "Норм, сам как?"}}]
+        }
+        mock_post.return_value = mock_response
+
+        existing_history = [
+            {"role": "user", "content": "Привет"},
+            {"role": "assistant", "content": "Здорово!"},
+        ]
+
+        answer, new_history = ask_ai("как дела?", existing_history)
+
+        assert answer == "Норм, сам как?"
+        assert len(new_history) == 4
+        assert new_history[0]["role"] == "user"
+        assert new_history[0]["content"] == "Привет"
+        assert new_history[2]["role"] == "user"
+        assert new_history[2]["content"] == "как дела?"
+
+    @patch("Oleg.commands.ai_chat.requests.post")
+    def test_ask_ai_network_error(self, mock_post):
+        """Ошибка сети: возвращается сообщение об ошибке, история не меняется."""
+        mock_post.side_effect = Exception("Connection timeout")
+
+        original_history = [
+            {"role": "user", "content": "old"},
+            {"role": "assistant", "content": "old"},
+        ]
+        answer, new_history = ask_ai("вопрос", original_history.copy())
+
+        assert answer == "Извини, не могу ответить сейчас."
+        assert new_history == original_history
+
+    @patch("Oleg.commands.ai_chat.requests.post")
+    def test_ask_ai_http_error(self, mock_post):
+        """HTTP ошибка API: возвращается сообщение об ошибке."""
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+        mock_response.raise_for_status.side_effect = Exception("HTTP 500")
+        mock_post.return_value = mock_response
+
+        answer, history = ask_ai("вопрос", [])
+
+        assert answer == "Извини, не могу ответить сейчас."
+        assert history == []
+
+    @patch("Oleg.commands.ai_chat.requests.post")
+    def test_ask_ai_history_truncation(self, mock_post):
+        """История урезается до 10 сообщений (+ новые)."""
+        mock_response = MagicMock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {"choices": [{"message": {"content": "ok"}}]}
+        mock_post.return_value = mock_response
+
+        # Создаём длинную историю (10 старых сообщений = 5 диалогов)
+        long_history = []
+        for i in range(10):
+            long_history.append({"role": "user", "content": f"q{i}"})
+            long_history.append({"role": "assistant", "content": f"a{i}"})
+
+        # 10 сообщений уже есть, добавляем ещё один диалог
+        _, new_history = ask_ai("последний вопрос", long_history)
+
+        # Должно быть не больше 12: 10 старых + user + assistant
+        assert len(new_history) <= 12
+        # Последнее сообщение должно быть от ассистента
+        assert new_history[-1]["role"] == "assistant"
+        assert new_history[-2]["role"] == "user"
+        assert new_history[-2]["content"] == "последний вопрос"
+
+    # ========== ИНТЕГРАЦИЯ (проверка импорта) ==========
+
+    def test_ai_chat_mode_import(self):
+        """Проверка, что функция ai_chat_mode импортируется без ошибок."""
+        try:
+            from Oleg.commands.ai_chat import ai_chat_mode
+
+            assert callable(ai_chat_mode)
+        except ImportError as e:
+            pytest.fail(f"Не удалось импортировать ai_chat_mode: {e}")
