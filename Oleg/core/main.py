@@ -24,6 +24,7 @@ from Oleg.commands.smart_home import control_device
 from typing import Callable
 from Oleg.commands.notes import add_note, list_notes, delete_note, clear_notes
 from Oleg.utils.command_parser import parse_command
+from Oleg.commands.ai_chat import ai_chat_mode
 
 # -------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------
 # исключения для мин. арг.: -1 вся строка без триггера; -2 вся строка включая триггер.
@@ -48,6 +49,7 @@ COMMANDS = {
     "заметки": (list_notes, 0, False),
     "удали заметку": (delete_note, 1, False),
     "удали все заметки": (clear_notes, 0, False),
+    "режим собеседника": (ai_chat_mode, 0, False),
 }
 
 
