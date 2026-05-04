@@ -216,13 +216,7 @@ def process_command_text(text: str):
 def main():
     """Точка входа для консольного режима."""
     logger.info("Для активации скажите 'Олег'")
-    logger.info("Начинаю прослушивание через...")
-    sleep(1)
-    for i in range(3, 0, -1):
-        print(i, end="")
-        sleep(1)
-        if i == 1:
-            print("\nГоворите!")
+    logger.info("Начинаю прослушивание!")
 
     while True:
         listen_for_command()
