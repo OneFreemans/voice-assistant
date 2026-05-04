@@ -213,8 +213,8 @@ def process_command_text(text: str):
         return "не правильное кол-во аргументов"
 
 
-if __name__ == "__main__":
-    logger.info("Запуск голосового ассистента")
+def main():
+    """Точка входа для консольного режима."""
     logger.info("Для активации скажите 'Олег'")
     logger.info("Начинаю прослушивание через...")
     sleep(1)
@@ -227,3 +227,7 @@ if __name__ == "__main__":
     while True:
         listen_for_command()
         sleep(0.1)
+
+
+if __name__ == "__main__":
+    main()

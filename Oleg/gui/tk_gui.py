@@ -186,9 +186,3 @@ class VoiceGUI:
             logger.error(f"Voice error: {e}")
             self.on_log(f"❌ Ошибка: {e}")
             self.root.after(0, self.stop_voice)  # noqa
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = VoiceGUI(root)
-    root.mainloop()
