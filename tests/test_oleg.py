@@ -25,7 +25,7 @@ from Oleg.services.vk_functions import last_message
 from Oleg.commands.smart_home import control_device
 from Oleg.utils.formatters import mesh, rub, cop, min as format_min
 from Oleg.commands.functions import _process_calculation, calculation_materials
-from Oleg.commands.ai_chat import ask_ai
+from Oleg.services.deepseek import ask_ai
 from Oleg.utils.anecdote import an
 from Oleg import config
 import json
@@ -520,7 +520,7 @@ class TestAiChat:
 
     # ========== ТЕСТЫ ask_ai ==========
 
-    @patch("Oleg.commands.ai_chat.requests.post")
+    @patch("Oleg.services.deepseek.requests.post")
     def test_ask_ai_success(self, mock_post):
         """Успешный запрос к API: возвращается ответ и обновляется история."""
         # Подменяем ответ API
@@ -545,7 +545,7 @@ class TestAiChat:
         call_args = mock_post.call_args
         assert call_args[1]["json"]["model"] == "deepseek-chat"
 
-    @patch("Oleg.commands.ai_chat.requests.post")
+    @patch("Oleg.services.deepseek.requests.post")
     def test_ask_ai_with_history(self, mock_post):
         """Запрос с историей: история правильно расширяется."""
         mock_response = MagicMock()
@@ -569,7 +569,7 @@ class TestAiChat:
         assert new_history[2]["role"] == "user"
         assert new_history[2]["content"] == "как дела?"
 
-    @patch("Oleg.commands.ai_chat.requests.post")
+    @patch("Oleg.services.deepseek.requests.post")
     def test_ask_ai_network_error(self, mock_post):
         """Ошибка сети: возвращается сообщение об ошибке, история не меняется."""
         mock_post.side_effect = Exception("Connection timeout")
@@ -583,7 +583,7 @@ class TestAiChat:
         assert answer == "Извини, не могу ответить сейчас."
         assert new_history == original_history
 
-    @patch("Oleg.commands.ai_chat.requests.post")
+    @patch("Oleg.services.deepseek.requests.post")
     def test_ask_ai_http_error(self, mock_post):
         """HTTP ошибка API: возвращается сообщение об ошибке."""
         mock_response = MagicMock()
@@ -596,7 +596,7 @@ class TestAiChat:
         assert answer == "Извини, не могу ответить сейчас."
         assert history == []
 
-    @patch("Oleg.commands.ai_chat.requests.post")
+    @patch("Oleg.services.deepseek.requests.post")
     def test_ask_ai_history_truncation(self, mock_post):
         """История урезается до 10 сообщений (+ новые)."""
         mock_response = MagicMock()
