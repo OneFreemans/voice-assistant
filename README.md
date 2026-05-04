@@ -56,7 +56,7 @@
 git clone https://github.com/OneFreemans/voice-assistant.git
 cd voice-assistant
 ```
-
+---
 ### 2. Создай виртуальное окружение
 ```bash
 python -m venv .venv
@@ -67,12 +67,12 @@ source .venv/bin/activate
 # Windows
 .venv\Scripts\activate
 ```
-
+---
 ### 3. Установи зависимости
 ```bash
 pip install -r requirements.txt
 ```
-
+---
 ### 4. Настрой переменные окружения
 
 Создай файл `.env` в корне проекта:
@@ -86,6 +86,7 @@ YANDEX_TOKEN=ваш_токен_яндекса
 
 Файл `.env` не коммитится — он в `.gitignore`.
 
+---
 ### 5. Запуск
 ```bash
 python run.py          # консольный режим
@@ -152,13 +153,13 @@ voice-assistant/
 ```bash
 pytest tests/ --cov=Oleg --cov-report=term-missing
 ```
-
+---
 ### Pre-commit
 ```bash
 pre-commit install
 pre-commit run --all-files
 ```
-
+---
 ### CI/CD
 При каждом пуше в `main` GitHub Actions запускает тесты. Статус: [![CI](https://github.com/OneFreemans/voice-assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/OneFreemans/voice-assistant/actions/workflows/ci.yml)
 
