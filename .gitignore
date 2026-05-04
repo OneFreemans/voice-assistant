@@ -4,9 +4,9 @@ __pycache__/
 .idea/
 *.pyc
 *.log
-secrets.py
 htmlcov/
 .coverage
+.env
 
 # Папки внутри Oleg
 Oleg/__pycache__/
@@ -14,6 +14,4 @@ Oleg/models/__pycache__/
 tests/__pycache__/
 Oleg/utils/__pycache__/
 Oleg/.pytest_cache/
-tests/THOUGHTS.py
-Oleg/secrets.py
 Oleg/commands/notes.json

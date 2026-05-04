@@ -1,4 +1,7 @@
 from Oleg.utils.fuzzy import match_activation_command, FUZZY_THRESHOLD  # noqa
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Яндекс Умный дом
 # структура - "команда после триггера включи или выключи": "ID устройства"
