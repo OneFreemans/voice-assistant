@@ -4,7 +4,6 @@ import subprocess
 import webbrowser
 import random
 from Oleg import config
-from Oleg.core.voice import get_text_from_microphone
 from Oleg.utils.anecdote import an
 from Oleg.utils.formatters import mesh, rub, cop, hour, min as format_min
 import datetime as dt
@@ -152,6 +151,8 @@ def calculation_materials(mat: str) -> str:
     Returns:
         str: Результат расчёта или сообщение об ошибке.
     """
+    from Oleg.core.voice import get_text_from_microphone
+
     text = get_text_from_microphone()
     if text is None:
         return "Не удалось распознать речь. Попробуйте ещё раз."

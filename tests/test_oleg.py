@@ -496,21 +496,21 @@ class TestCalculationMaterials:
     # ========== ИНТЕГРАЦИЯ С ГОЛОСОМ (calculation_materials) ==========
 
     def test_calculation_materials_voice_ok(self):
-        with patch("Oleg.commands.functions.get_text_from_microphone") as mock_voice:
+        with patch("Oleg.core.voice.get_text_from_microphone") as mock_voice:
             mock_voice.return_value = "40 квадратов 5 сантиметров"
             result = calculation_materials("стяжку")
             assert "Понадобится" in result
 
     def test_calculation_materials_voice_none(self):
         """Микрофон не распознал речь"""
-        with patch("Oleg.commands.functions.get_text_from_microphone") as mock_voice:
+        with patch("Oleg.core.voice.get_text_from_microphone") as mock_voice:
             mock_voice.return_value = None
             result = calculation_materials("стяжку")
             assert "Не удалось распознать речь" in result
 
     def test_calculation_materials_voice_invalid_text(self):
         """Микрофон вернул мусор"""
-        with patch("Oleg.commands.functions.get_text_from_microphone") as mock_voice:
+        with patch("Oleg.core.voice.get_text_from_microphone") as mock_voice:
             mock_voice.return_value = "мусор"
             result = calculation_materials("стяжку")
             assert "Не удалось распознать данные" in result
