@@ -2,8 +2,11 @@ import sys
 import tkinter as tk
 from Oleg.core.main import main
 from Oleg.gui.tk_gui import VoiceGUI
+from Oleg.core.voice import _get_silero_model
 
 if __name__ == "__main__":
+    _get_silero_model()
+
     if "--gui" in sys.argv:
         root = tk.Tk()
         app = VoiceGUI(root)

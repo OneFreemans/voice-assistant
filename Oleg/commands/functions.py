@@ -6,7 +6,7 @@ import random
 from Oleg import config
 from Oleg.core.voice import get_text_from_microphone
 from Oleg.utils.anecdote import an
-from Oleg.utils.formatters import mesh, rub, cop, min as format_min
+from Oleg.utils.formatters import mesh, rub, cop, hour, min as format_min
 import datetime as dt
 from Oleg.utils.logger import logger
 
@@ -162,16 +162,29 @@ def calculation_materials(mat: str) -> str:
 # ----------------------------------текущий день---------------------------------
 def what_dey(city: int = config.UTC_OFFSET) -> str:
     """
-    Возвращает текущую дату с учётом часового пояса.
-
-    Args:
-        city: Часовой сдвиг в часах относительно UTC (по умолчанию из config.UTC_OFFSET).
-
-    Returns:
-        Строка с датой в формате "сегодня ДД.ММ.ГГГГ".
+    Возвращает текущую дату словами.
     """
     city_day = dt.datetime.now(dt.timezone.utc) + dt.timedelta(hours=city)
-    return city_day.strftime("сегодня %d.%m.%Y")
+    day = city_day.day
+    month = city_day.month
+    year = city_day.year
+
+    months = {
+        1: "января",
+        2: "февраля",
+        3: "марта",
+        4: "апреля",
+        5: "мая",
+        6: "июня",
+        7: "июля",
+        8: "августа",
+        9: "сентября",
+        10: "октября",
+        11: "ноября",
+        12: "декабря",
+    }
+
+    return f"сегодня {day} {months[month]} {year} года"
 
 
 # -------------------------------курс волют к рублю------------------------------
@@ -253,29 +266,24 @@ def run_program(name_prog: str) -> str:
 # ---------------------------------текущие время---------------------------------
 def time_kem() -> str:
     """
-    Возвращает текущее время в формате ЧЧ:ММ:СС.
+    Возвращает текущее время словами: «3 часа 18 минут 42 секунды».
     """
-    return time.strftime("%H:%M:%S", time.localtime())
+    t = time.localtime()
+    h, m = t.tm_hour, t.tm_min
+    return f"{h} {hour(h)} {m} {format_min(m)}"
 
 
 # ---------------------------------погода сегодня--------------------------------
 def what_weather(city: str = config.DEFAULT_CITY) -> str:
     """
-    Получает погоду для указанного города с сервиса wttr.in.
-
-    Args:
-        city: Название города (по умолчанию из config.DEFAULT_CITY).
-
-    Returns:
-        Строка с погодой или сообщение об ошибке.
+    Возвращает погоду для указанного города.
     """
     url = f"http://wttr.in/{city}"
 
     weather_parameters = {
-        "format": "%l: %t %C",  # город: температура + описание
-        "M": "",  # скорость ветра в м/с
-        "lang": "ru",  # язык — русский
-        "A": "",  # отключить цвета (ANSI escape codes)
+        "format": "%l: %t %c",
+        "M": "",
+        "lang": "ru",
     }
 
     try:
@@ -283,13 +291,38 @@ def what_weather(city: str = config.DEFAULT_CITY) -> str:
         response.raise_for_status()
         response.encoding = "utf-8"
         text = response.text.strip()
+
+        # Заменяем emoji на русские слова
+        replacements = {
+            "☀️": "Ясно",
+            "☀": "Ясно",
+            "🌤": "Малооблачно",
+            "⛅": "Облачно",
+            "☁️": "Пасмурно",
+            "🌧": "Дождь",
+            "🌦": "Небольшой дождь",
+            "🌨": "Снег",
+            "🌩": "Гроза",
+            "🌫": "Туман",
+            "❄️": "Снегопад",
+            "❄": "Снегопад",
+        }
+        for emoji, word in replacements.items():
+            text = text.replace(emoji, word)
+
+        text = " ".join(text.split())
+
+        text = text.replace("°C", " градусов")
+        text = text.replace("-", "минус ")
+        text = text.replace("+", "плюс ")
+
         return text
     except requests.ConnectionError:
         return "Сетевая ошибка"
     except requests.Timeout:
         return "Таймаут при запросе погоды"
-    except requests.RequestException as e:
-        return f"Ошибка при получении погоды: {str(e)}"
+    except requests.RequestException:
+        return "Ошибка при получении погоды"
 
 
 # ---------------------------Рисует сердце--------------------

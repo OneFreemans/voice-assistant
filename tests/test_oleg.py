@@ -39,14 +39,15 @@ class TestBasicFunctions:
     def test_time_kem(self):
         """Тест функции времени"""
         result = time_kem()
-        assert len(result) == 8, f"Неправильная длина строки: {len(result)} вместо 8"
+        assert "час" in result, f"Время должно содержать 'час': {result}"
+        assert len(result) > 0
 
     def test_what_dey(self):
         """Тест функции даты"""
         result = what_dey()
-        assert len(result) == 18, (
-            f"what_dey() -> Неправильная длина строки: {len(result)} вместо 18"
-        )
+        assert "сегодня" in result
+        assert "года" in result
+        assert len(result) > 0
 
     def test_currency(self):
         """Тест функции курса валют"""

@@ -1,113 +1,116 @@
-import pyttsx3
-import threading
-import time
+import os
+import tempfile
+from typing import Optional
+import soundfile as sf
+import pygame
+import torch
+from num2words import num2words
 from Oleg.utils.logger import logger
-from typing import Optional, Union
-import speech_recognition as sr
+import time
 
 
-# ---------------------------Функции озвучивания и перезапуска ядра--------------------
-def say_text(text: str, wait: bool = True) -> None:
-    """
-    Озвучивает текст (создаёт новый движок каждый раз для надёжности)
+_silero_model = None
 
-    Args:
-        text: Текст для озвучивания
-        wait: Если True — озвучивает синхронно, если False — в отдельном потоке.
 
-    Returns:
-        None
-    """
+def _get_silero_model():
+    """Загружает модель Silero TTS (один раз)."""
+    global _silero_model
+    if _silero_model is not None:
+        return _silero_model
 
-    def _speak():
+    device = torch.device("cpu")
+    torch.set_num_threads(4)
+    model, _ = torch.hub.load(
+        repo_or_dir="snakers4/silero-models",
+        model="silero_tts",
+        language="ru",
+        speaker="v4_ru",
+    )
+    model.to(device)
+    _silero_model = model
+    logger.info("Silero TTS модель загружена")
+    return _silero_model
+
+
+def _numbers_to_words(text: str) -> str:
+    """Заменяет целые числа на слова."""
+    result = []
+    for word in text.split():
+        stripped = word.lstrip("-")
+        if stripped.isdigit():
+            try:
+                result.append(num2words(int(stripped), lang="ru"))
+            except Exception:
+                result.append(word)
+        else:
+            result.append(word)
+    return " ".join(result)
+
+
+def say_text(text: str) -> None:
+    """Озвучивает текст через Silero TTS."""
+    model = _get_silero_model()
+    prepared = _numbers_to_words(text)
+
+    audio = model.apply_tts(
+        text=prepared,
+        speaker="eugene",
+        sample_rate=48000,
+        put_accent=True,
+        put_yo=True,
+    )
+
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        sf.write(tmp.name, audio.numpy(), 48000)
+
+    try:
+        pygame.mixer.init()
+        pygame.mixer.music.load(tmp.name)
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            pygame.time.Clock().tick(10)
+    finally:
         try:
-            engine = pyttsx3.init()
-            engine.setProperty("rate", 240)  # Скорость речи
-            engine.setProperty("volume", 1.0)  # Громкость
+            os.unlink(tmp.name)
+        except OSError:
+            pass
 
-            # Ищем голос Irina
-            for voice in engine.getProperty("voices"):
-                if "irina" in voice.name.lower():
-                    engine.setProperty("voice", voice.id)
-                    break
 
-            engine.say(text)
-            engine.runAndWait()
-            engine.stop()
-        except Exception as e:
-            logger.error(f"Ошибка озвучки: {e}")
-
-    if wait:
-        _speak()
-
+def process_result_and_restart(text: Optional[str]) -> None:
+    """Озвучивает результат."""
+    if text:
+        logger.info(f"Ответ: {text}")
+        say_text(text)
     else:
-        thread = threading.Thread(target=_speak, daemon=True)
-        thread.start()
+        logger.info("Нечего озвучивать")
 
 
-def process_result_and_restart(
-    result: Union[str, dict, None], success_message: Optional[str] = None
-) -> None:
-    """Обрабатывает результат функции: выводит, озвучивает
+def get_text_from_microphone() -> Optional[str]:
+    """Распознавание речи с микрофона."""
+    try:
+        import speech_recognition as sr
+    except ImportError:
+        logger.error("speech_recognition не установлен")
+        return None
 
-    Args:
-        result: Результат функции
-        success_message: Сообщение, которое будет выводиться, если функция успешно выполнена
-
-    Returns:
-        None
-    """
-    if isinstance(result, dict):
-        if "error" in result:
-            say_text(result["error"])
-            logger.error(result["error"])
-
-        elif "message" in result:
-            say_text(result["message"])
-            logger.info(result["message"])
-
-        elif "data" in result:
-            say_text(result["data"])
-            logger.info(result["data"])
-
-    elif result:
-        say_text(result)
-        logger.info(result)
-
-    if success_message:
-        say_text(success_message)
-        logger.info(success_message)
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        recognizer.adjust_for_ambient_noise(source)
+        try:
+            audio = recognizer.listen(source, timeout=5, phrase_time_limit=5)
+            return recognizer.recognize_google(audio, language="ru-RU").lower()
+        except (sr.UnknownValueError, sr.RequestError, sr.WaitTimeoutError):
+            return None
 
 
 # ---------------------------Голосовой ввод для расчета материалов--------------------
-def get_text_from_microphone() -> str | None:
-    """
-    Захватывает речь через микрофон и возвращает распознанный текст.
-    Выводит подсказку для пользователя, ждёт 3 секунды, затем слушает микрофон.
+def get_text_from_microphone_cal() -> Optional[str]:
+    """Распознавание речи с подсказкой (для расчёта материалов)."""
+    print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
+    print("Пример: 40 квадратов 5 сантиметров")
+    for i in range(3, 0, -1):
+        print(i, end=" ")
+        time.sleep(1)
+    print("\nГоворите!")
 
-    Returns:
-        str | None: Распознанный текст в нижнем регистре или None при ошибке.
-    """
-    with sr.Microphone() as source:
-        r = sr.Recognizer()
-        r.adjust_for_ambient_noise(source)
-
-        print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
-        print("Пример: 40 квадратов 5 сантиметров")
-        for i in range(3, 0, -1):
-            print(i, end="")
-            time.sleep(1)
-            if i == 1:
-                print("\nГоворите!")
-
-        try:
-            audio = r.listen(source, phrase_time_limit=3)
-            text = r.recognize_google(audio, language="ru-RU").lower()
-            logger.debug(f"Распознано: {text}")
-            return text
-        except sr.UnknownValueError:
-            logger.warning("Речь не распознана")
-            return None
-        except sr.RequestError as e:
-            logger.error(f"Ошибка сервиса распознавания: {e}")
-            return None
+    return get_text_from_microphone()

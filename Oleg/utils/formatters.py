@@ -46,3 +46,13 @@ def cop(count: int | str) -> str:
 def min(count: int | str) -> str:
     """Возвращает правильную форму слова 'минута' для числа count."""
     return _format(count, "минута", "минуты", "минут")
+
+
+def hour(count: int | str) -> str:
+    """Возвращает правильную форму слова 'час' для числа count."""
+    return _format(count, "час", "часа", "часов")
+
+
+def second(count: int | str) -> str:
+    """Возвращает правильную форму слова 'секунда' для числа count."""
+    return _format(count, "секунда", "секунды", "секунд")
