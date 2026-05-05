@@ -169,7 +169,7 @@ pre-commit run --all-files
 
 | Библиотека | Назначение |
 |---|---|
-| `pyttsx3` | Синтез речи |
+| `torch` / `soundfile` / `pygame` / `num2words` | Silero TTS — нейросетевая озвучка |
 | `SpeechRecognition` | Распознавание речи |
 | `requests` | HTTP-запросы |
 | `vk_api` | Работа с VK API |
