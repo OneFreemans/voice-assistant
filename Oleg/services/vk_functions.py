@@ -7,7 +7,7 @@ vk = session.get_api()
 
 
 # ---------------------------Ответ на последние сообщение----------------------------
-def answer_last_message(message_text: str) -> str:  # FIXME отправляет сообщение себе
+def answer_last_message(message_text: str) -> str:
     """
     Пишет сообщение последнему человеку в диалогах.
 
