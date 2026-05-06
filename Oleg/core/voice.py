@@ -63,7 +63,6 @@ def say_text(text: str) -> None:
         sf.write(tmp.name, audio.numpy(), 48000)
 
     try:
-        pygame.mixer.init()
         pygame.mixer.music.load(tmp.name)
         pygame.mixer.music.play()
         while pygame.mixer.music.get_busy():
