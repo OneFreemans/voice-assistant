@@ -86,7 +86,7 @@ def listen_for_command() -> None:
             text = r.recognize_google(audio, language="ru-RU")
             logger.debug(f"Распознано: {text}")
 
-            if text == "Олег стоп":
+            if config.match_activation_command(text, ["Олег стоп"]):
                 say_text("Пока.")
                 sys.exit(0)
 
