@@ -6,7 +6,6 @@ import pygame
 import torch
 from num2words import num2words
 from Oleg.utils.logger import logger
-import time
 
 
 _silero_model = None
@@ -101,16 +100,3 @@ def get_text_from_microphone() -> Optional[str]:
             return recognizer.recognize_google(audio, language="ru-RU").lower()
         except (sr.UnknownValueError, sr.RequestError, sr.WaitTimeoutError):
             return None
-
-
-# ---------------------------Голосовой ввод для расчета материалов--------------------
-def get_text_from_microphone_cal() -> Optional[str]:
-    """Распознавание речи с подсказкой (для расчёта материалов)."""
-    print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
-    print("Пример: 40 квадратов 5 сантиметров")
-    for i in range(3, 0, -1):
-        print(i, end=" ")
-        time.sleep(1)
-    print("\nГоворите!")
-
-    return get_text_from_microphone()

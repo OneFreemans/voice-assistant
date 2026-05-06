@@ -153,6 +153,13 @@ def calculation_materials(mat: str) -> str:
     """
     from Oleg.core.voice import get_text_from_microphone
 
+    print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
+    print("Пример: 40 квадратов 5 сантиметров")
+    for i in range(3, 0, -1):
+        print(i, end=" ")
+        time.sleep(1)
+    print("\nГоворите!")
+
     text = get_text_from_microphone()
     if text is None:
         return "Не удалось распознать речь. Попробуйте ещё раз."
