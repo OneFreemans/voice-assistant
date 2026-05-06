@@ -70,7 +70,7 @@ class TestBasicFunctions:
 
         # Тест для неизвестной валюты
         result_unknown = currency("фунт")
-        assert result_unknown == "Не удалось обработать запрос на курс валют", (
+        assert result_unknown == "Не удалось обработать запрос на курс валют.", (
             "Должна быть ошибка для неизвестной валюты"
         )
 
@@ -355,23 +355,23 @@ class TestNotes:
     def test_add_note_empty(self):
         """Пустая заметка → отказ"""
         result = add_note("")
-        assert result == "Нельзя добавить пустую заметку"
+        assert result == "Нельзя добавить пустую заметку."
 
     def test_add_note_whitespace(self):
         """Пробелы → отказ"""
         result = add_note("   ")
-        assert result == "Нельзя добавить пустую заметку"
+        assert result == "Нельзя добавить пустую заметку."
 
     def test_add_note_ok(self, temp_notes_file):
         """Нормальная заметка → добавляется"""
         result = add_note("купить молоко")
-        assert result == "Заметка добавлена: купить молоко"
+        assert result == "Заметка добавлена: купить молоко."
         assert _load_notes() == ["купить молоко"]
 
     def test_delete_note_no_notes(self, temp_notes_file):
         """Нет заметок → сообщение"""
         result = delete_note("1")
-        assert result == "Нет заметок для удаления"
+        assert result == "Нет заметок для удаления."
 
     def test_delete_note_invalid_number(self, temp_notes_file):
         """Некорректный номер → отказ"""
@@ -390,7 +390,7 @@ class TestNotes:
         add_note("заметка 1")
         add_note("заметка 2")
         result = delete_note("2")
-        assert result == "Удалена заметка 2: заметка 2"
+        assert result == "Удалена заметка 2: заметка 2."
         assert _load_notes() == ["заметка 1"]
 
     @pytest.mark.parametrize(
@@ -413,7 +413,7 @@ class TestNotes:
 
     def test_list_notes_empty(self, temp_notes_file):
         """Нет заметок → сообщение"""
-        assert list_notes() == "Заметок пока нет"
+        assert list_notes() == "Заметок пока нет."
 
     def test_list_notes_ok(self, temp_notes_file):
         """Есть заметки → форматированный список"""
@@ -437,7 +437,7 @@ class TestNotes:
         add_note("заметка")
         monkeypatch.setattr("builtins.input", lambda _: "y")
         result = clear_notes()
-        assert result == "Все заметки удалены"
+        assert result == "Все заметки удалены."
         assert _load_notes() == []
 
     def test_clear_notes_cancel(self, monkeypatch, temp_notes_file):
@@ -445,7 +445,7 @@ class TestNotes:
         add_note("заметка")
         monkeypatch.setattr("builtins.input", lambda _: "n")
         result = clear_notes()
-        assert result == "Удаление отменено"
+        assert result == "Удаление отменено."
         assert _load_notes() == ["заметка"]
 
     def test_clear_notes_empty_input(self, monkeypatch, temp_notes_file):
@@ -453,7 +453,7 @@ class TestNotes:
         add_note("заметка")
         monkeypatch.setattr("builtins.input", lambda _: "")
         result = clear_notes()
-        assert result == "Удаление отменено"
+        assert result == "Удаление отменено."
         assert _load_notes() == ["заметка"]
 
 

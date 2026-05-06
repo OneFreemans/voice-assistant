@@ -14,7 +14,7 @@ def ai_chat_mode() -> None:
         - Выход из режима по фразам: «закончить сессию» или «выход».
     """
     say_text("Режим собеседника включён.")
-    logger.info("AI режим активирован")
+    logger.info("AI режим активирован.")
 
     with sr.Microphone() as source:
         r = sr.Recognizer()
@@ -43,7 +43,7 @@ def ai_chat_mode() -> None:
             except sr.UnknownValueError:
                 say_text("Не расслышал, повторите.")
             except sr.RequestError as e:
-                logger.error(f"Ошибка распознавания речи: {e}")
+                logger.error(f"Ошибка распознавания речи: {e}.")
                 say_text("Ошибка соединения с сервером распознавания.")
 
-    logger.info("AI режим завершён")
+    logger.info("AI режим завершён.")

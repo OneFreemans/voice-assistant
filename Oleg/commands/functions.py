@@ -31,9 +31,9 @@ def my_timer(time_timer: str, format_timer: str) -> str:
 
     if format_timer in config.HOUR_FORMATS:
         seconds = int(time_timer) * 60 * 60
-        return f"таймер запущен на {time_timer} {format_timer}. Таймер завершится через {seconds} секунд"
+        return f"таймер запущен на {time_timer} {format_timer}. Таймер завершится через {seconds} секунд."
 
-    return f"Неизвестный формат времени: {format_timer}"
+    return f"Неизвестный формат времени: {format_timer}."
 
 
 def run_timer(time_timer: str, format_timer: str) -> None:
@@ -51,7 +51,7 @@ def run_timer(time_timer: str, format_timer: str) -> None:
         time.sleep(int(time_timer) * 60 * 60)
 
     print("Время вышло! Время вышло! Время вышло!")
-    logger.info("Таймер завершён")
+    logger.info("Таймер завершён.")
 
 
 # --------------------------открывает ссылку в браузере--------------------------
@@ -67,9 +67,9 @@ def open_website(website: str) -> str:
     """
     if website in config.WEBSITES:
         webbrowser.open_new_tab(f"https://{config.WEBSITES[website]}")
-        return f"{website} открыт"
+        return f"{website} открыт."
 
-    return f"Сайт '{website}' не найден в базе данных"
+    return f"Сайт '{website}' не найден в базе данных."
 
 
 # --------------------ищет пользовательский запрос в яндексе---------------------
@@ -87,9 +87,9 @@ def search_yandex(user_request: str) -> str:
     if len(parts) > 1:
         query = "+".join(parts)
         webbrowser.open_new_tab(f"https://yandex.ru/search/?text={query}&lr=64")
-        return f"Открываю ссылку по вашему запросу: {query.replace('+', ' ')}"
+        return f"Открываю ссылку по вашему запросу: {query.replace('+', ' ')}."
 
-    return "Запрос не указан"
+    return "Запрос не указан."
 
 
 # ---------------------------расчет материал для стяжки--------------------------
@@ -122,7 +122,7 @@ def _process_calculation(mat: str, text: str) -> str:
         return "Площадь и слой должны быть положительными числами."
 
     if mat not in config.MATERIALS:
-        return f"Материал '{mat}' не найден в базе данных"
+        return f"Материал '{mat}' не найден в базе данных."
 
     kf, kgm, price_m, price_r = map(int, config.MATERIALS[mat].split(", "))
     total_kg = thickness * kf * area / kgm
@@ -134,8 +134,8 @@ def _process_calculation(mat: str, text: str) -> str:
     cost_work = rub(int(total_cost_work))
 
     return (
-        f"Понадобится {int(total_kg)} {bags}, на материал уйдёт {int(total_cost_material)} "
-        f"{cost_material}, за работу возьмите {int(total_cost_work)} {cost_work}"
+        f"Понадобится {int(total_kg)} {bags}, на материал уйдёт {int(total_cost_material)}. "
+        f"{cost_material}, за работу возьмите {int(total_cost_work)} {cost_work}."
     )
 
 
@@ -192,7 +192,7 @@ def what_dey(city: int = config.UTC_OFFSET) -> str:
         12: "декабря",
     }
 
-    return f"сегодня {day} {months[month]} {year} года"
+    return f"сегодня {day} {months[month]} {year} года."
 
 
 # -------------------------------курс волют к рублю------------------------------
@@ -213,13 +213,13 @@ def currency(currency_name: str) -> str:
         usd_rate = data["Valute"]["USD"]["Value"]
         eur_rate = data["Valute"]["EUR"]["Value"]
     except requests.RequestException:
-        return "Не удалось получить курс с сайта ЦБ"
+        return "Не удалось получить курс с сайта ЦБ."
 
     if currency_name in ("доллара", "доллар"):
         course = usd_rate
         rubles = int(course)
         cents = round((course - rubles) * 100)
-        return f"курс доллара {rubles} {rub(rubles)} {cents} {cop(cents)}"
+        return f"курс доллара {rubles} {rub(rubles)} {cents} {cop(cents)}."
 
     if currency_name == "евро":
         course = eur_rate
@@ -227,7 +227,7 @@ def currency(currency_name: str) -> str:
         cents = round((course - rubles) * 100)
         return f"курс евро {rubles} {rub(rubles)} {cents} {cop(cents)}"
 
-    return "Не удалось обработать запрос на курс валют"
+    return "Не удалось обработать запрос на курс валют."
 
 
 # -----------------------------------анекдоты------------------------------------
@@ -259,16 +259,16 @@ def run_program(name_prog: str) -> str:
         process = subprocess.Popen(config.PROGRAMS[name_prog])
         # poll() возвращает None, если процесс ещё работает
         if process.poll() is None:
-            return f"Программа {name_prog} запускается"
+            return f"Программа {name_prog} запускается."
 
         else:
-            return f"Не удалось запустить {name_prog}"
+            return f"Не удалось запустить {name_prog}."
     except FileNotFoundError:
-        return f"Файл программы {name_prog} не найден"
+        return f"Файл программы {name_prog} не найден."
     except PermissionError:
-        return f"Нет прав на запуск {name_prog}"
+        return f"Нет прав на запуск {name_prog}."
     except Exception as e:
-        return f"Ошибка при запуске {name_prog}: {str(e)}"
+        return f"Ошибка при запуске {name_prog}: {str(e)}."
 
 
 # ---------------------------------текущие время---------------------------------
@@ -278,7 +278,7 @@ def time_kem() -> str:
     """
     t = time.localtime()
     h, m = t.tm_hour, t.tm_min
-    return f"{h} {hour(h)} {m} {format_min(m)}"
+    return f"{h} {hour(h)} {m} {format_min(m)}."
 
 
 # ---------------------------------погода сегодня--------------------------------
@@ -324,13 +324,13 @@ def what_weather(city: str = config.DEFAULT_CITY) -> str:
         text = text.replace("-", "минус ")
         text = text.replace("+", "плюс ")
 
-        return text
+        return text + "."
     except requests.ConnectionError:
-        return "Сетевая ошибка"
+        return "Сетевая ошибка."
     except requests.Timeout:
-        return "Таймаут при запросе погоды"
+        return "Таймаут при запросе погоды."
     except requests.RequestException:
-        return "Ошибка при получении погоды"
+        return "Ошибка при получении погоды."
 
 
 # ---------------------------Рисует сердце--------------------
@@ -360,7 +360,7 @@ def print_heart(amount: str, color: str) -> str:
     try:
         count = int(amount)
     except ValueError:
-        return f"Ошибка: '{amount}' не является числом"
+        return f"Ошибка: '{amount}' не является числом."
 
     color_code = COLORS.get(color.lower(), COLORS["белое"])
 
@@ -376,7 +376,7 @@ def print_heart(amount: str, color: str) -> str:
             "      ♥      ",
         ]
         for line in heart_lines:
-            print(f"{color_code}{line}{COLORS['reset']}")
+            print(f"{color_code}{line}{COLORS['reset']}.")
         print()
 
-    return f"Нарисовано {count} сердец цветом {color}"
+    return f"Нарисовано {count} сердец цветом {color}."

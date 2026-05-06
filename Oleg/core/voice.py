@@ -23,7 +23,7 @@ def _get_silero_model():
         repo_or_dir="snakers4/silero-models",
         model="silero_tts",
         language="ru",
-        speaker="v4_ru",
+        speaker="v5_5_ru",
     )
     model.to(device)
     _silero_model = model

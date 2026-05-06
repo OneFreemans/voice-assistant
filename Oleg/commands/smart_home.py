@@ -19,10 +19,10 @@ def control_yandex_device(device_id: str, action: str) -> str:
     status, response = yh.control_device(device_id, action)
     if status == 200:
         result = "включено" if action == "on" else "выключено"
-        return f"Устройство {result}"
+        return f"Устройство {result}."
 
     else:
-        return f"Ошибка: {response}"
+        return f"Ошибка: {response}."
 
 
 def control_device(action: str, device_name: str) -> str:
@@ -38,7 +38,7 @@ def control_device(action: str, device_name: str) -> str:
     """
     device_id = config.YANDEX_DEVICE_IDS.get(device_name)
     if not device_id:
-        return f"Устройство '{device_name}' не найдено в конфиге"
+        return f"Устройство '{device_name}' не найдено в конфиге."
 
     cmd = "on" if action == "включи" else "off"
     return control_yandex_device(device_id, cmd)

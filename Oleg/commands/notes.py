@@ -31,7 +31,7 @@ def _load_notes() -> List[str]:
             data = json.load(f)
             return data.get("notes", [])
     except (json.JSONDecodeError, IOError) as e:
-        logger.error(f"Ошибка загрузки заметок: {e}")
+        logger.error(f"Ошибка загрузки заметок: {e}.")
         return []
 
 
@@ -49,7 +49,7 @@ def _save_notes(notes: List[str]) -> None:
         with open(NOTES_FILE, "w", encoding="utf-8") as f:
             json.dump({"notes": notes}, f, ensure_ascii=False, indent=4)
     except IOError as e:
-        logger.error(f"Ошибка сохранения заметок: {e}")
+        logger.error(f"Ошибка сохранения заметок: {e}.")
 
 
 # ---------- Публичные функции ----------
@@ -66,12 +66,12 @@ def add_note(text: str) -> str:
         Сообщение о результате операции.
     """
     if not text or not text.strip():
-        return "Нельзя добавить пустую заметку"
+        return "Нельзя добавить пустую заметку."
 
     notes = _load_notes()
     notes.append(text.strip())
     _save_notes(notes)
-    return f"Заметка добавлена: {text}"
+    return f"Заметка добавлена: {text}."
 
 
 def delete_note(number: Union[str, int]) -> str:
@@ -86,24 +86,24 @@ def delete_note(number: Union[str, int]) -> str:
     """
     index = extract_number(number.strip())  # приводит "один" к 1, "два" к 2 и Т.Д..
     if index is None or index <= 0:
-        return f"Некорректный номер: {number}"
+        return f"Некорректный номер: {number}."
 
     notes = _load_notes()
 
     if not notes:
-        return "Нет заметок для удаления"
+        return "Нет заметок для удаления."
 
     try:
         idx = int(index) - 1
     except (ValueError, TypeError):
-        return f"Некорректный номер: {index}"
+        return f"Некорректный номер: {index}."
 
     if idx < 0 or idx >= len(notes):
-        return f"Нет заметки с номером {index} (всего {len(notes)})"
+        return f"Нет заметки с номером {index} (всего {len(notes)})."
 
     removed = notes.pop(idx)
     _save_notes(notes)
-    return f"Удалена заметка {index}: {removed}"
+    return f"Удалена заметка {index}: {removed}."
 
 
 def list_notes() -> str:
@@ -116,7 +116,7 @@ def list_notes() -> str:
     notes = _load_notes()
 
     if not notes:
-        return "Заметок пока нет"
+        return "Заметок пока нет."
 
     result = "Ваши заметки:\n"
     for i, note in enumerate(notes, 1):
@@ -139,9 +139,9 @@ def clear_notes() -> str:
     )
     if ans.startswith("y"):
         _save_notes([])
-        return "Все заметки удалены"
+        return "Все заметки удалены."
     else:
-        return "Удаление отменено"
+        return "Удаление отменено."
 
 
 # def get_all_notes() -> List[str]: TODO прикрутить к gui
