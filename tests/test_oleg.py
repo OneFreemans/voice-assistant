@@ -75,10 +75,17 @@ class TestBasicFunctions:
         )
 
     def test_what_weather(self):
-        result = what_weather()
-        assert isinstance(result, str)
-        assert len(result) > 0
-        assert "ошибка" not in result.lower()
+        """Тест функции погоды"""
+        with patch("Oleg.commands.functions.requests.get") as mock_get:
+            mock_response = MagicMock()
+            mock_response.text = "Кемерово: +15°C Ясно"
+            mock_response.raise_for_status = MagicMock()
+            mock_get.return_value = mock_response
+
+            result = what_weather()
+            assert isinstance(result, str)
+            assert len(result) > 0
+            assert "Ясно" in result
 
     def test_prank(self):
         """Тест функции анекдотов"""
