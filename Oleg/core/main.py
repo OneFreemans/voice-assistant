@@ -87,7 +87,7 @@ def listen_for_command() -> None:
             logger.debug(f"Распознано: {text}")
 
             if text == "Олег стоп":
-                say_text("Пока")
+                say_text("Пока.")
                 sys.exit(0)
 
             elif config.match_activation_command(text, config.OLEG_COMMANDS):
@@ -100,7 +100,7 @@ def listen_for_command() -> None:
         except (sr.UnknownValueError, sr.RequestError, sr.WaitTimeoutError):
             return None
         except Exception as e:
-            logger.error(f"Ошибка распознавания: {e}")
+            logger.error(f"Ошибка распознавания: {e}.")
             return None
 
 
@@ -121,14 +121,14 @@ def listen_for_command_after_activation() -> None:
             logger.debug(f"Команда: {text}")
 
             if "стоп" in text:
-                say_text("До скорых встреч!")
+                say_text("До скорых встреч.")
                 sys.exit(0)
 
             # Парсит полученный текст
             trigger, args_part, args = parse_command(text, COMMANDS)
 
             if not trigger:
-                say_text(f"Я не знаю команду - {text}")
+                say_text(f"Я не знаю команду - {text}.")
                 return
 
             func, min_args, need_timer = COMMANDS[trigger]
@@ -170,7 +170,7 @@ def listen_for_command_after_activation() -> None:
                 timer_thread.start()
 
         except Exception as e:
-            print(f"Ошибка: {e}")
+            print(f"Ошибка: {e}.")
 
 
 # ---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------
