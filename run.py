@@ -1,5 +1,5 @@
 import sys
-import tkinter as tk
+import customtkinter as ctk
 from Oleg.core.main import main
 from Oleg.gui.tk_gui import VoiceGUI
 from Oleg.core.voice import _get_silero_model
@@ -10,7 +10,7 @@ if __name__ == "__main__":
     _get_silero_model()
 
     if "--gui" in sys.argv:
-        root = tk.Tk()
+        root = ctk.CTk()
         app = VoiceGUI(root)
         root.mainloop()
     else:

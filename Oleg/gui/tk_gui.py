@@ -1,187 +1,157 @@
-import tkinter as tk
-from tkinter import scrolledtext
+import customtkinter as ctk
 import threading
 from Oleg.core.main import set_status_callback, listen_for_command
 from Oleg.utils.logger import logger, set_gui_callback
 
 
-# -------------------------------------------------------------------
-# Класс графического интерфейса голосового ассистента
-# -------------------------------------------------------------------
+BACKGROUND = "#0D1117"
+FRAME_BG = "#161B22"
+BUTTON_BG = "#21262D"
+BUTTON_HOVER = "#30363D"
+GREEN_ACCENT = "#3FB950"
+RED_ACCENT = "#F85149"
+TEXT_COLOR = "#C9D1D9"
+TEXT_MUTED = "#8B949E"
+
+
 class VoiceGUI:
-    """
-    Графический интерфейс для голосового ассистента на Tkinter.
-
-    Отвечает за:
-    - Запуск и остановку голосового режима
-    - Отображение лога работы
-    - Индикатор состояния (вкл/выкл)
-    - Быстрые команды
-    """
-
-    def __init__(self, master: tk.Tk) -> None:
-        """
-        Инициализация интерфейса
-        master: корневое окно tkinter
-        """
+    def __init__(self, master: ctk.CTk) -> None:
         self.root = master
-        self.root.title("Oleg Assistant")  # заголовок окна
-        self.root.geometry("650x500")  # размеры: ширина x высота
-        self.root.configure(bg="#1a1a2e")  # тёмный фон
-        self.root.resizable(False, False)  # запрет изменения размера
+        self.root.title("Oleg Assistant")
+        self.root.geometry("600x450")
+        ctk.set_appearance_mode("Dark")
+        self.root.resizable(False, False)
 
-        # Переменные состояния
-        self.voice_active = False  # активен ли голосовой режим
-        self.voice_thread = None  # поток для голосового режима
-        self.log_area = None  # текстовое поле для логов
+        self.voice_active = False
+        self.voice_thread = None
 
-        # Регистрируем обратный вызов для логгера — теперь все logger.info() и т.д.
-        # будут дублироваться в это окно через метод on_log
         set_gui_callback(self.on_log)
-
-        # Регистрируем обратный вызов для статуса из main.py
-        # main будет вызывать on_status(1) или on_status(0)
         set_status_callback(self.on_status)
 
-        # --- Верхняя часть с индикатором ---
-        top_frame = tk.Frame(self.root, bg="#1a1a2e")
-        top_frame.pack(pady=10)
+        self._build_ui()
 
-        # Индикатор — кружок, меняющий цвет (зелёный/чёрный)
-        self.indicator = tk.Canvas(
-            top_frame, width=30, height=30, bg="#1a1a2e", highlightthickness=0
+    def _build_ui(self):
+        # --- Основной контейнер ---
+        main_frame = ctk.CTkFrame(self.root, fg_color="transparent")
+        main_frame.pack(fill="both", expand=True, padx=20, pady=20)
+
+        # --- Заголовок ---
+        header_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        header_frame.pack(fill="x", pady=(0, 5))
+
+        title = ctk.CTkLabel(
+            header_frame,
+            text="🎙️ Oleg",
+            font=("Segoe UI", 20, "bold"),
+            text_color=TEXT_COLOR,
         )
-        self.indicator.create_oval(5, 5, 25, 25, fill="#2a2a3a", outline="")
-        self.indicator.pack(pady=5)
+        title.pack(side="left")
+
+        # --- Индикатор статуса ---
+        status_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        status_frame.pack(fill="x", pady=(0, 10))
+
+        self.status_label = ctk.CTkLabel(
+            status_frame,
+            text="● Ожидание",
+            font=("Segoe UI", 19),
+            text_color=TEXT_MUTED,
+        )
+        self.status_label.pack(anchor="w", padx=(390, 0))
 
         # --- Кнопки управления ---
-        btn_frame = tk.Frame(self.root, bg="#1a1a2e")
-        btn_frame.pack(pady=10)
+        btn_frame = ctk.CTkFrame(main_frame, fg_color="transparent")
+        btn_frame.pack(fill="x", pady=(0, 15))
 
-        # Кнопка "Старт" — включает голосовой режим
-        self.start_btn = tk.Button(
+        self.start_btn = ctk.CTkButton(
             btn_frame,
-            text="Старт",
-            font=("Arial", 12),
-            bg="#2a2a3a",  # тёмный фон
-            fg="#aaffaa",  # светло-зелёный текст
-            relief=tk.FLAT,  # плоская кнопка
-            padx=20,
-            pady=5,
+            text="▶ Старт",
+            width=130,
+            height=36,
+            font=("Segoe UI", 12, "bold"),
+            fg_color=GREEN_ACCENT,
+            hover_color="#2EA043",
+            text_color="#000000",
+            text_color_disabled="#FFFFFF",
+            corner_radius=8,
             command=self.start_voice,
         )
-        self.start_btn.pack(side=tk.LEFT, padx=10)
+        self.start_btn.pack(side="left", padx=(0, 10))
 
-        # Кнопка "Стоп" — выключает голосовой режим
-        self.stop_btn = tk.Button(
+        self.stop_btn = ctk.CTkButton(
             btn_frame,
-            text="Стоп",
-            font=("Arial", 12),
-            bg="#2a2a3a",
-            fg="#ffaaaa",  # светло-красный текст
-            relief=tk.FLAT,
-            padx=20,
-            pady=5,
+            text="⏹ Стоп",
+            width=130,
+            height=36,
+            font=("Segoe UI", 12, "bold"),
+            fg_color=RED_ACCENT,
+            hover_color="#D0352A",
+            text_color="#000000",
+            text_color_disabled="#FFFFFF",
+            corner_radius=8,
             command=self.stop_voice,
-            state=tk.DISABLED,  # изначально неактивна
+            state="disabled",
         )
-        self.stop_btn.pack(side=tk.LEFT, padx=10)
+        self.stop_btn.pack(side="left")
 
-        # --- Лог-поле для вывода сообщений ---
-        log_frame = tk.Frame(self.root, bg="#1a1a2e")
-        log_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
-
-        # ScrolledText — текстовое поле с полосой прокрутки
-        self.log_area = scrolledtext.ScrolledText(
-            log_frame,
-            height=15,
-            bg="#2a2a3a",  # тёмный фон
-            fg="#c0c0d0",  # светлый текст
-            font=("Consolas", 9),  # моноширинный шрифт
-            wrap=tk.WORD,  # перенос по словам
-            relief=tk.FLAT,
-            insertbackground="white",  # цвет курсора
+        # --- Лог-поле ---
+        self.log_area = ctk.CTkTextbox(
+            main_frame,
+            wrap="word",
+            font=("Cascadia Code", 10),
+            fg_color=FRAME_BG,
+            text_color=TEXT_COLOR,
+            border_width=1,
+            border_color="#30363D",
+            corner_radius=10,
         )
-        self.log_area.pack(fill=tk.BOTH, expand=True)
+        self.log_area.pack(fill="both", expand=True)
 
-        # Автопрокрутка вниз (показывает последние сообщения)
-        self.log_area.see(tk.END)
+        self.log_area.tag_config("system", foreground=TEXT_MUTED)
+        self.log_area.tag_config("success", foreground=GREEN_ACCENT)
+        self.log_area.tag_config("error", foreground=RED_ACCENT)
 
-    # Обработчик сообщений из логгера
     def on_log(self, level: int, message: str) -> None:
-        """
-        Вызывается из логгера при каждом новом сообщении.
-
-        Args:
-            message: Текст сообщения для отображения в логе.
-        """
         if self.log_area and level >= 20:
-            self.root.after(0, self._append_log, message)
+            tag = "system"
+            if "активирован" in message or "✅" in message:
+                tag = "success"
+            elif "Ошибка" in message or "❌" in message:
+                tag = "error"
+            self.root.after(0, self._append_log, message, tag)
 
-    def _append_log(self, message: str) -> None:
-        """
-        Добавляет сообщение в лог-поле и прокручивает его вниз.
+    def _append_log(self, message: str, tag: str = "system") -> None:
+        self.log_area.insert("end", f"{message}\n", tag)
+        self.log_area.see("end")
 
-        Args:
-            message: Текст сообщения для добавления.
-        """
-        self.log_area.insert(tk.END, f"{message}\n")
-        self.log_area.see(tk.END)
-
-    # Обработчик изменения статуса голосового режима
     def on_status(self, status: int) -> None:
-        """
-        Вызывается из main.py при смене состояния.
-
-        Args:
-            status: 1 — ассистент активирован (сказали "Олег"), ждёт команду;
-                    0 — вернулся в режим ожидания.
-        """
         if status == 1:
-            self.indicator.itemconfig(1, fill="#33ff33")  # зелёный
-
+            self.status_label.configure(text="● Активен", text_color=GREEN_ACCENT)
         elif status == 2:
-            self.indicator.itemconfig(1, fill="#2a2a3a")  # чёрный
+            self.status_label.configure(text="● Ожидание", text_color=TEXT_MUTED)
 
-    # Запуск голосового режима
     def start_voice(self) -> None:
-        """
-        Запускает голосовой режим в отдельном потоке.
-        Обновляет состояние кнопок и индикатора.
-        """
         if not self.voice_active:
             self.voice_active = True
             self.voice_thread = threading.Thread(target=self.voice_loop, daemon=True)
             self.voice_thread.start()
 
-            self.start_btn.config(state=tk.DISABLED)
-            self.stop_btn.config(state=tk.NORMAL)
-            self.indicator.itemconfig(1, fill="#2a2a3a")
-            self.on_log(20, "🎤 Голосовой режим активирован")
+            self.start_btn.configure(state="disabled")
+            self.stop_btn.configure(state="normal")
+            self.on_log(20, "▶ Голосовой режим активирован")
 
-    # Остановка голосового режима
     def stop_voice(self) -> None:
-        """
-        Останавливает голосовой режим.
-        Обновляет состояние кнопок и индикатора.
-        """
         self.voice_active = False
-        self.start_btn.config(state=tk.NORMAL)
-        self.stop_btn.config(state=tk.DISABLED)
-        self.indicator.itemconfig(1, fill="#2a2a3a")
-        self.on_log(20, "🔇 Голосовой режим остановлен")
+        self.start_btn.configure(state="normal")
+        self.stop_btn.configure(state="disabled")
+        self.status_label.configure(text="● Ожидание", text_color=TEXT_MUTED)
+        self.on_log(20, "⏹ Голосовой режим остановлен")
 
-    # Основной цикл голосового режима (работает в отдельном потоке)
     def voice_loop(self) -> None:
-        """
-        Основной цикл голосового режима, работает в отдельном потоке.
-        Вызывает main.listen_for_command() для обработки команд.
-        При ошибке останавливает голосовой режим через главный поток.
-        """
         try:
             while self.voice_active:
                 listen_for_command()
         except Exception as e:
             logger.error(f"Voice error: {e}")
             self.on_log(40, f"❌ Ошибка: {e}")
-            self.root.after(0, self.stop_voice)  # noqa
+            self.root.after(0, self.stop_voice)
