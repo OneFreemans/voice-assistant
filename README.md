@@ -128,7 +128,7 @@ voice-assistant/
 │   │   └── deepseek.py       # DeepSeek API
 │   │
 │   ├── gui/
-│   │   └── tk_gui.py         # GUI на Tkinter
+│   │   └── tk_gui.py         # GUI на CustomTkinter
 │   │
 │   └── utils/                # утилиты
 │       ├── fuzzy.py          # нечёткое сопоставление
@@ -167,16 +167,17 @@ pre-commit run --all-files
 
 ## 🧠 Технологии
 
-| Библиотека | Назначение |
-|---|---|
+| Библиотека | Назначение                        |
+|---|-----------------------------------|
 | `torch` / `soundfile` / `pygame` / `num2words` | Silero TTS — нейросетевая озвучка |
-| `SpeechRecognition` | Распознавание речи |
-| `requests` | HTTP-запросы |
-| `vk_api` | Работа с VK API |
-| `python-dotenv` | Загрузка .env |
-| `pytest` | Тестирование |
-| `ruff` | Линтер/форматтер |
-| `pre-commit` | Хуки перед коммитом |
+| `SpeechRecognition` | Распознавание речи                |
+| `requests` | HTTP-запросы                      |
+| `vk_api` | Работа с VK API                   |
+| `python-dotenv` | Загрузка .env                     |
+| `pytest` | Тестирование                      |
+| `ruff` | Линтер/форматтер                  |
+| `pre-commit` | Хуки перед коммитом               |
+| `customtkinter` | Графический интерфейс             |
 
 ---
 
