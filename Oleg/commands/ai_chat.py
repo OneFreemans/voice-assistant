@@ -35,6 +35,7 @@ def ai_chat_mode() -> None:
 
                 if text:
                     answer, history = ask_ai(text, history)
+                    logger.debug(f"Ai ответ: {answer[:30]} ... {answer[-30:]}")
                     print(answer)
                     say_text(answer)
 
