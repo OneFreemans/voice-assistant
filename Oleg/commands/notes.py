@@ -71,7 +71,7 @@ def add_note(text: str) -> str:
     notes = _load_notes()
     notes.append(text.strip())
     _save_notes(notes)
-    return f"Заметка добавлена: {text}."
+    return f"Заметка добавлена: {text} ."
 
 
 def delete_note(number: Union[str, int]) -> str:
@@ -96,10 +96,10 @@ def delete_note(number: Union[str, int]) -> str:
     try:
         idx = int(index) - 1
     except (ValueError, TypeError):
-        return f"Некорректный номер: {index}."
+        return f"Некорректный номер: {index} ."
 
     if idx < 0 or idx >= len(notes):
-        return f"Нет заметки с номером {index} (всего {len(notes)})."
+        return f"Нет заметки с номером {index} (всего {len(notes)} )."
 
     removed = notes.pop(idx)
     _save_notes(notes)
@@ -122,7 +122,7 @@ def list_notes() -> str:
     for i, note in enumerate(notes, 1):
         max_len = 50
         short_note = note if len(note) <= max_len else note[: max_len - 3] + "..."
-        result += f"{i}. {short_note}\n"
+        result += f"{i} | {short_note}\n"
 
     return result
 

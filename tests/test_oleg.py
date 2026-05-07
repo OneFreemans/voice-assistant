@@ -365,7 +365,7 @@ class TestNotes:
     def test_add_note_ok(self, temp_notes_file):
         """Нормальная заметка → добавляется"""
         result = add_note("купить молоко")
-        assert result == "Заметка добавлена: купить молоко."
+        assert result == "Заметка добавлена: купить молоко ."
         assert _load_notes() == ["купить молоко"]
 
     def test_delete_note_no_notes(self, temp_notes_file):
@@ -383,7 +383,7 @@ class TestNotes:
         """Номер больше длины списка → отказ"""
         add_note("заметка")
         result = delete_note("10")
-        assert "Нет заметки с номером 10 (всего 1)" in result
+        assert "Нет заметки с номером 10 (всего 1 )" in result
 
     def test_delete_note_by_digit(self, temp_notes_file):
         """Удаление по цифре → удаляется"""
@@ -421,8 +421,8 @@ class TestNotes:
         add_note("позвонить маме")
         result = list_notes()
         assert "Ваши заметки:" in result
-        assert "1. купить хлеб" in result
-        assert "2. позвонить маме" in result
+        assert "1 | купить хлеб" in result
+        assert "2 | позвонить маме" in result
 
     def test_list_notes_long_line(self, temp_notes_file):
         """Длинная заметка обрезается до 50 символов"""
