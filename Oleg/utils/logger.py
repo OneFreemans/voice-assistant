@@ -4,10 +4,10 @@ import sys
 from logging.handlers import RotatingFileHandler
 from typing import Callable, Optional
 
-_gui_callback: Optional[Callable[[str], None]] = None
+_gui_callback: Optional[Callable[[int, str], None]] = None
 
 
-def set_gui_callback(callback: Callable[[str], None]) -> None:
+def set_gui_callback(callback: Callable[[int, str], None]) -> None:
     """
     Устанавливает функцию обратного вызова для отправки логов в GUI.
 
@@ -31,9 +31,8 @@ class GuiHandler(logging.Handler):
             record: Объект записи лога (LogRecord).
         """
         # Проверяем, что callback существует и является вызываемым объектом
-        if _gui_callback is not None and callable(_gui_callback):
-            msg = self.format(record)
-            _gui_callback(msg)
+        if _gui_callback is not None:
+            _gui_callback(record.levelno, self.format(record))
 
 
 # Основная функция настройки логгера.

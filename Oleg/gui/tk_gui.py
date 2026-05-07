@@ -108,15 +108,14 @@ class VoiceGUI:
         self.log_area.see(tk.END)
 
     # Обработчик сообщений из логгера
-    def on_log(self, message: str) -> None:
+    def on_log(self, level: int, message: str) -> None:
         """
         Вызывается из логгера при каждом новом сообщении.
 
         Args:
             message: Текст сообщения для отображения в логе.
         """
-        if self.log_area:
-            # Безопасная передача из другого потока
+        if self.log_area and level >= 20:
             self.root.after(0, self._append_log, message)
 
     def _append_log(self, message: str) -> None:
@@ -158,7 +157,7 @@ class VoiceGUI:
             self.start_btn.config(state=tk.DISABLED)
             self.stop_btn.config(state=tk.NORMAL)
             self.indicator.itemconfig(1, fill="#2a2a3a")
-            self.on_log("🎤 Голосовой режим активирован")
+            self.on_log(20, "🎤 Голосовой режим активирован")
 
     # Остановка голосового режима
     def stop_voice(self) -> None:
@@ -170,7 +169,7 @@ class VoiceGUI:
         self.start_btn.config(state=tk.NORMAL)
         self.stop_btn.config(state=tk.DISABLED)
         self.indicator.itemconfig(1, fill="#2a2a3a")
-        self.on_log("🔇 Голосовой режим остановлен")
+        self.on_log(20, "🔇 Голосовой режим остановлен")
 
     # Основной цикл голосового режима (работает в отдельном потоке)
     def voice_loop(self) -> None:
@@ -184,5 +183,5 @@ class VoiceGUI:
                 listen_for_command()
         except Exception as e:
             logger.error(f"Voice error: {e}")
-            self.on_log(f"❌ Ошибка: {e}")
+            self.on_log(40, f"❌ Ошибка: {e}")
             self.root.after(0, self.stop_voice)  # noqa
