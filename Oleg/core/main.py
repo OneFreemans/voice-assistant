@@ -170,7 +170,7 @@ def listen_for_command_after_activation() -> None:
                 timer_thread.start()
 
         except Exception as e:
-            print(f"Ошибка: {e}.")
+            logger.error(f"Ошибка: {e}.")
 
 
 # ---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------

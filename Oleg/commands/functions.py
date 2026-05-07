@@ -50,7 +50,6 @@ def run_timer(time_timer: str, format_timer: str) -> None:
     elif format_timer in config.HOUR_FORMATS:
         time.sleep(int(time_timer) * 60 * 60)
 
-    print("Время вышло! Время вышло! Время вышло!")
     logger.info("Таймер завершён.")
 
 
@@ -153,12 +152,12 @@ def calculation_materials(mat: str) -> str:
     """
     from Oleg.core.voice import get_text_from_microphone
 
-    print("Скажите: N квадратов(площадь), X сантиметров(толщина)")
-    print("Пример: 40 квадратов 5 сантиметров")
+    logger.info("Скажите: N квадратов(площадь), X сантиметров(толщина)")
+    logger.info("Пример: 40 квадратов 5 сантиметров")
     for i in range(3, 0, -1):
         print(i, end=" ")
         time.sleep(1)
-    print("\nГоворите!")
+    logger.info("Говорите!")
 
     text = get_text_from_microphone()
     if text is None:
