@@ -142,13 +142,3 @@ def clear_notes() -> str:
         return "Все заметки удалены."
     else:
         return "Удаление отменено."
-
-
-# def get_all_notes() -> List[str]: TODO прикрутить к gui
-#     """
-#     Получить сырой список заметок (для GUI).
-#
-#     Returns:
-#         Список заметок.
-#     """
-#     return _load_notes()
