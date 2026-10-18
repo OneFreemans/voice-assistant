@@ -277,11 +277,12 @@ def listen_for_command_after_activation() -> None:
 
             process_result_and_restart(result)
 
-            if _status_callback is not None:
-                _status_callback(2)  # noqa
-
         except Exception as e:
             logger.error(f"Ошибка: {e}.")
+        finally:
+            # Сбрасываем статус всегда: даже при ошибке или раннем return
+            if _status_callback is not None:
+                _status_callback(2)  # noqa
 
 
 # ---------------ТОЛЬКО ДЛЯ PYTEST(запуск с test_oleg.py - pytest)------------------------

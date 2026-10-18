@@ -477,29 +477,18 @@ class TestNotes:
         assert "..." in result
         assert len(result.split("\n")[1]) <= 55
 
-    def test_clear_notes_confirm(self, monkeypatch, temp_notes_file):
-        """Подтверждение 'y' → все заметки удалены"""
+    def test_clear_notes(self, temp_notes_file):
+        """Удаление без подтверждения → все заметки удалены"""
         add_note("заметка")
-        monkeypatch.setattr("builtins.input", lambda _: "y")
         result = clear_notes()
         assert result == "Все заметки удалены."
         assert _load_notes() == []
 
-    def test_clear_notes_cancel(self, monkeypatch, temp_notes_file):
-        """Отмена 'n' → заметки остаются"""
-        add_note("заметка")
-        monkeypatch.setattr("builtins.input", lambda _: "n")
+    def test_clear_notes_empty(self, temp_notes_file):
+        """Удаление при пустом списке → тоже работает"""
         result = clear_notes()
-        assert result == "Удаление отменено."
-        assert _load_notes() == ["заметка"]
-
-    def test_clear_notes_empty_input(self, monkeypatch, temp_notes_file):
-        """Пустой ввод → удаление отменено (первый символ не 'y')"""
-        add_note("заметка")
-        monkeypatch.setattr("builtins.input", lambda _: "")
-        result = clear_notes()
-        assert result == "Удаление отменено."
-        assert _load_notes() == ["заметка"]
+        assert result == "Все заметки удалены."
+        assert _load_notes() == []
 
 
 class TestCalculationMaterials:
