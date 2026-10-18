@@ -48,7 +48,7 @@ class CommandSpec:
     func: Callable
     mode: str = "pos"  # "none" | "pos" | "rest" | "full"
     nargs: int = 0
-    background: Callable = None
+    background: Callable | None = None
     aliases: List[str] = field(default_factory=list)
 
 
@@ -56,27 +56,83 @@ class CommandSpec:
 
 
 COMMANDS = {
-    "таймер": CommandSpec(my_timer, mode="pos", nargs=2, background=run_timer),
-    "сколько время": CommandSpec(time_kem, mode="none"),
-    "запусти": CommandSpec(run_program, mode="pos", nargs=1),
-    "расскажи анекдот": CommandSpec(prank, mode="none"),
-    "погода": CommandSpec(what_weather, mode="none"),
-    "курс": CommandSpec(currency, mode="pos", nargs=1),
-    "какой сегодня день": CommandSpec(what_dey, mode="none"),
-    "рассчитай": CommandSpec(calculation_materials, mode="pos", nargs=1),
-    "открой": CommandSpec(open_website, mode="pos", nargs=1),
-    "яндекс": CommandSpec(search_yandex, mode="rest"),
-    "отправь сообщение": CommandSpec(messenger, mode="rest"),
-    "последнее сообщение": CommandSpec(last_message, mode="none"),
-    "ответь на сообщение": CommandSpec(answer_last_message, mode="rest"),
-    "сердце": CommandSpec(print_heart, mode="pos", nargs=2),
+    "таймер": CommandSpec(
+        my_timer, mode="pos", nargs=2, background=run_timer, aliases=["поставь таймер"]
+    ),
+    "сколько время": CommandSpec(
+        time_kem, mode="none", aliases=["который час", "сколько часов"]
+    ),
+    "запусти": CommandSpec(
+        run_program,
+        mode="pos",
+        nargs=1,
+        aliases=["запусти программу", "открой программу"],
+    ),
+    "расскажи анекдот": CommandSpec(
+        prank,
+        mode="none",
+        aliases=["расскажи что-нибудь смешное", "расскажи анекдотик"],
+    ),
+    "погода": CommandSpec(
+        what_weather, mode="none", aliases=["какая погода", "погода сейчас"]
+    ),
+    "курс": CommandSpec(
+        currency, mode="pos", nargs=1, aliases=["какой курс", "курс валют"]
+    ),
+    "какой сегодня день": CommandSpec(
+        what_dey, mode="none", aliases=["какая сегодня дата", "какой день сегодня"]
+    ),
+    "рассчитай": CommandSpec(
+        calculation_materials,
+        mode="pos",
+        nargs=1,
+        aliases=["подсчитай", "посчитай", "рассчитать"],
+    ),
+    "открой": CommandSpec(
+        open_website, mode="pos", nargs=1, aliases=["открой сайт", "открыть"]
+    ),
+    "яндекс": CommandSpec(
+        search_yandex,
+        mode="rest",
+        aliases=["найди в яндексе", "погугли", "поищи в интернете"],
+    ),
+    "отправь сообщение": CommandSpec(
+        messenger,
+        mode="rest",
+        aliases=["напиши сообщение", "отправь", "напиши"],
+    ),
+    "последнее сообщение": CommandSpec(
+        last_message, mode="none", aliases=["что нового", "последнее"]
+    ),
+    "ответь на сообщение": CommandSpec(
+        answer_last_message, mode="rest", aliases=["ответь", "ответить"]
+    ),
+    "сердце": CommandSpec(
+        print_heart, mode="pos", nargs=2, aliases=["нарисуй сердце", "сердечки"]
+    ),
     "включи": CommandSpec(control_device, mode="full"),
     "выключи": CommandSpec(control_device, mode="full"),
-    "добавь заметку": CommandSpec(add_note, mode="rest"),
-    "заметки": CommandSpec(list_notes, mode="none"),
-    "удали заметку": CommandSpec(delete_note, mode="pos", nargs=1),
-    "удали все заметки": CommandSpec(clear_notes, mode="none"),
-    "режим собеседника": CommandSpec(ai_chat_mode, mode="none"),
+    "добавь заметку": CommandSpec(
+        add_note, mode="rest", aliases=["запиши заметку", "создай заметку"]
+    ),
+    "заметки": CommandSpec(
+        list_notes,
+        mode="none",
+        aliases=["показать заметки", "список заметок", "мои заметки"],
+    ),
+    "удали заметку": CommandSpec(
+        delete_note, mode="pos", nargs=1, aliases=["удалить заметку", "убери заметку"]
+    ),
+    "удали все заметки": CommandSpec(
+        clear_notes,
+        mode="none",
+        aliases=["очистить заметки", "удалить все заметки", "стереть все заметки"],
+    ),
+    "режим собеседника": CommandSpec(
+        ai_chat_mode,
+        mode="none",
+        aliases=["чат с ии", "болталка", "режим чата", "общение с ии"],
+    ),
 }
 
 
