@@ -1,3 +1,6 @@
+from dataclasses import dataclass, field
+from typing import Callable, List
+
 from Oleg.commands.functions import (
     my_timer,
     time_kem,
@@ -21,35 +24,59 @@ import speech_recognition as sr
 from time import sleep
 from Oleg.utils.logger import logger
 from Oleg.commands.smart_home import control_device
-from typing import Callable
 from Oleg.commands.notes import add_note, list_notes, delete_note, clear_notes
 from Oleg.utils.command_parser import parse_command
 from Oleg.commands.ai_chat import ai_chat_mode
 
-# -------команды(триггер: (функция, кол-во мин арг., нужен ли отдельный поток)------
-# исключения для мин. арг.: -1 вся строка без триггера; -2 вся строка включая триггер.
+
+# ------------------------------------------------------------------ CommandSpec ---
+
+
+@dataclass(frozen=True)
+class CommandSpec:
+    """
+    Описание одной голосовой команды.
+
+    Аргументы:
+        func:        Функция-обработчик.
+        mode:        Режим передачи аргументов.
+        nargs:       Кол-во позиционных аргументов (актуально для mode="pos").
+        background:  Фоновая функция (таймер и т.п.), запускается в отдельном потоке.
+        aliases:     Синонимы-фразы, которые ведут на этот же trigger.
+    """
+
+    func: Callable
+    mode: str = "pos"  # "none" | "pos" | "rest" | "full"
+    nargs: int = 0
+    background: Callable = None
+    aliases: List[str] = field(default_factory=list)
+
+
+# ------------------------------------------------------------------- COMMANDS ---
+
+
 COMMANDS = {
-    "таймер": (my_timer, 2, True),
-    "сколько время": (time_kem, 0, False),
-    "запусти": (run_program, 1, False),
-    "расскажи анекдот": (prank, 0, False),
-    "погода": (what_weather, 0, False),
-    "курс": (currency, 1, False),
-    "какой сегодня день": (what_dey, 0, False),
-    "рассчитай": (calculation_materials, 1, False),
-    "открой": (open_website, 1, False),
-    "яндекс": (search_yandex, -1, False),
-    "отправь сообщение": (messenger, -1, False),
-    "последнее сообщение": (last_message, 0, False),
-    "ответь на сообщение": (answer_last_message, -1, False),
-    "сердце": (print_heart, 2, False),
-    "включи": (control_device, -2, False),
-    "выключи": (control_device, -2, False),
-    "добавь заметку": (add_note, -1, False),
-    "заметки": (list_notes, 0, False),
-    "удали заметку": (delete_note, 1, False),
-    "удали все заметки": (clear_notes, 0, False),
-    "режим собеседника": (ai_chat_mode, 0, False),
+    "таймер": CommandSpec(my_timer, mode="pos", nargs=2, background=run_timer),
+    "сколько время": CommandSpec(time_kem, mode="none"),
+    "запусти": CommandSpec(run_program, mode="pos", nargs=1),
+    "расскажи анекдот": CommandSpec(prank, mode="none"),
+    "погода": CommandSpec(what_weather, mode="none"),
+    "курс": CommandSpec(currency, mode="pos", nargs=1),
+    "какой сегодня день": CommandSpec(what_dey, mode="none"),
+    "рассчитай": CommandSpec(calculation_materials, mode="pos", nargs=1),
+    "открой": CommandSpec(open_website, mode="pos", nargs=1),
+    "яндекс": CommandSpec(search_yandex, mode="rest"),
+    "отправь сообщение": CommandSpec(messenger, mode="rest"),
+    "последнее сообщение": CommandSpec(last_message, mode="none"),
+    "ответь на сообщение": CommandSpec(answer_last_message, mode="rest"),
+    "сердце": CommandSpec(print_heart, mode="pos", nargs=2),
+    "включи": CommandSpec(control_device, mode="full"),
+    "выключи": CommandSpec(control_device, mode="full"),
+    "добавь заметку": CommandSpec(add_note, mode="rest"),
+    "заметки": CommandSpec(list_notes, mode="none"),
+    "удали заметку": CommandSpec(delete_note, mode="pos", nargs=1),
+    "удали все заметки": CommandSpec(clear_notes, mode="none"),
+    "режим собеседника": CommandSpec(ai_chat_mode, mode="none"),
 }
 
 
@@ -104,12 +131,70 @@ def listen_for_command() -> None:
             return None
 
 
+def dispatch_command(text: str, commands: dict):
+    """
+    Универсальный диспетчер команд.
+
+    Парсит текст, находит команду, передаёт аргументы в нужном режиме
+    и запускает фоновую задачу (таймер и т.п.).
+
+    Args:
+        text: Распознанный голосом текст (уже без активатора "Олег").
+        commands: Словарь COMMANDS из этого модуля.
+
+    Returns:
+        Строка-результат выполнения или сообщение об ошибке.
+    """
+    trigger, args_part, args = parse_command(text, commands)
+
+    if not trigger:
+        return None, None, None
+
+    spec = commands[trigger]
+
+    # ---------- проверка аргументов ----------
+    if spec.mode == "pos" and len(args) < spec.nargs:
+        return (
+            f"Команда '{trigger}' требует минимум {spec.nargs} аргументов.",
+            None,
+            None,
+        )
+
+    # ---------- вызов ----------
+    if spec.mode == "none":
+        result = spec.func()
+
+    elif spec.mode == "pos":
+        result = spec.func(*args[: spec.nargs])
+
+    elif spec.mode == "rest":
+        result = spec.func(args_part)
+
+    elif spec.mode == "full":
+        result = spec.func(trigger, args_part)
+
+    else:
+        result = spec.func()
+
+    # ---------- фоновая задача (таймер и т.п.) ----------
+    if spec.background and result:
+        # Костыль: таймер запускаем только по текстовому маркеру
+        if "таймер запущен" in str(result):
+            t = threading.Thread(
+                target=spec.background,
+                args=(args[0] if args else "1", args[1] if len(args) > 1 else "минут"),
+                daemon=True,
+            )
+            t.start()
+
+    return result, trigger, args
+
+
 def listen_for_command_after_activation() -> None:
     """
     Прослушивает команды после активации "Олег".
 
-    Обрабатывает команды через универсальный парсер по словарю COMMANDS.
-    Передаёт требуемые аргументы в функции.
+    Обрабатывает команды через dispatch_command.
     """
     with sr.Microphone() as source:
         r = sr.Recognizer()
@@ -124,50 +209,20 @@ def listen_for_command_after_activation() -> None:
                 say_text("До скорых встреч.")
                 sys.exit(0)
 
-            # Парсит полученный текст
-            trigger, args_part, args = parse_command(text, COMMANDS)
+            result, trigger, args = dispatch_command(text, COMMANDS)
 
             if not trigger:
                 say_text(f"Я не знаю команду - {text}.")
                 return
 
-            func, min_args, need_timer = COMMANDS[trigger]
-
-            # Проверяем минимальное количество аргументов
-            if min_args > 0 and len(args) < min_args:
-                say_text(f"Команда '{trigger}' требует минимум {min_args} аргументов.")
+            if isinstance(result, str) and "требует минимум" in result:
+                say_text(result)
                 return
-
-            if min_args == 0:
-                result = func()
-
-            elif min_args == -2:
-                result = func(trigger, args_part)
-
-            elif min_args == -1:
-                result = func(args_part)
-
-            elif min_args == 1:
-                result = func(args[0])
-
-            elif min_args == 2:
-                result = func(args[0], args[1])
-
-            else:
-                result = func()
 
             process_result_and_restart(result)
 
             if _status_callback is not None:
                 _status_callback(2)  # noqa
-
-            # Запуск таймера в отдельном потоке
-            if need_timer and result and "таймер запущен" in result:
-                timer_thread = threading.Thread(
-                    target=run_timer, args=(args[0], args[1])
-                )
-                timer_thread.daemon = True
-                timer_thread.start()
 
         except Exception as e:
             logger.error(f"Ошибка: {e}.")
@@ -177,40 +232,44 @@ def listen_for_command_after_activation() -> None:
 def process_command_text(text: str):
     """
     Обрабатывает текст команды и возвращает результат.
-    Скопировано из listen_for_command_after_activation, но без микрофона и озвучивания.
+
+    Для тестов:
+        - Команды с mode="none"   → возвращает "нет аргументов"
+        - Команды с mode="full"   → возвращает (trigger, args_part)
+        - Команды с mode="rest"   → возвращает args_part
+        - Команды с mode="pos"    → возвращает кортеж/строку аргументов
     """
     if "стоп" in text:
         return "До скорых встреч!"
 
-    # Парсит полученный текст
     trigger, args_part, args = parse_command(text, COMMANDS)
 
     if not trigger:
         return f"Я не знаю команду - {text}"
 
-    func, min_args, need_timer = COMMANDS[trigger]
+    spec = COMMANDS[trigger]
 
-    # Проверяем минимальное количество аргументов
-    if min_args > 0 and len(args) < min_args:
-        return f"Команда '{trigger}' требует минимум {min_args} аргументов."
+    # ---------- проверка аргументов ----------
+    if spec.mode == "pos" and len(args) < spec.nargs:
+        return f"Команда '{trigger}' требует минимум {spec.nargs} аргументов."
 
-    if min_args == 0:
+    # ---------- заглушки для тестов ----------
+    if spec.mode == "none":
         return "нет аргументов"
 
-    elif min_args == -2:
+    elif spec.mode == "full":
         return trigger, args_part
 
-    elif min_args == -1:
+    elif spec.mode == "rest":
         return args_part
 
-    elif min_args == 1:
-        return args[0]
+    elif spec.mode == "pos":
+        if len(args) == 1:
+            return args[0]
+        elif len(args) >= 2:
+            return args[0], args[1]
 
-    elif min_args == 2:
-        return args[0], args[1]
-
-    else:
-        return "не правильное кол-во аргументов"
+    return "неправильное кол-во аргументов"
 
 
 def main():
