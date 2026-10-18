@@ -20,17 +20,21 @@ def my_timer(time_timer: str, format_timer: str) -> str:
         format_timer: Единица измерения ("минут", "часов".).
 
     Returns:
-        Строка с сообщением о запуске таймера.
+        Строка с сообщением о запуске таймера или об ошибке.
     """
+    try:
+        amount = int(time_timer)
+    except ValueError:
+        return f"Не удалось распознать число: {time_timer}."
 
     formatted_min = format_min(time_timer)
 
     if format_timer in config.MINUTE_FORMATS:
-        seconds = int(time_timer) * 60
+        seconds = amount * 60
         return f"таймер запущен на {time_timer} {formatted_min}. Таймер завершится через {seconds} секунд"
 
     if format_timer in config.HOUR_FORMATS:
-        seconds = int(time_timer) * 60 * 60
+        seconds = amount * 60 * 60
         return f"таймер запущен на {time_timer} {format_timer}. Таймер завершится через {seconds} секунд."
 
     return f"Неизвестный формат времени: {format_timer}."
@@ -40,15 +44,28 @@ def run_timer(time_timer: str, format_timer: str) -> None:
     """
     Запускает таймер в отдельном потоке и выводит сообщение о завершении.
 
+    Безопасен для фоновой задачи: при неизвестном формате или не-числе
+    молча завершается, не выдавая ложного сообщения о завершении.
+
     Args:
         time_timer: Количество единиц времени (строка).
         format_timer: Единица измерения ("минут", "часов".).
     """
+    try:
+        amount = int(time_timer)
+    except ValueError:
+        logger.error(f"Таймер: '{time_timer}' не является числом.")
+        return
+
     if format_timer in config.MINUTE_FORMATS:
-        time.sleep(int(time_timer) * 60)
+        time.sleep(amount * 60)
 
     elif format_timer in config.HOUR_FORMATS:
-        time.sleep(int(time_timer) * 60 * 60)
+        time.sleep(amount * 60 * 60)
+
+    else:
+        logger.error(f"Таймер: неизвестный формат времени '{format_timer}'.")
+        return
 
     logger.info("Таймер завершён.")
 

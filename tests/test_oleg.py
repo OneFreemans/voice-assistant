@@ -5,6 +5,7 @@ from Oleg.commands.functions import (
     currency,
     prank,
     my_timer,
+    run_timer,
     print_heart,
     search_yandex,
     run_program,
@@ -152,6 +153,40 @@ class TestTimerAndHeart:
 
         result_unknown = my_timer("3", "секунды")
         assert "Неизвестный формат" in result_unknown
+
+    def test_my_timer_bad_number(self):
+        """Таймер с не-числом → ошибка распознания"""
+        result = my_timer("пять", "минут")
+        assert "Не удалось распознать число" in result
+
+    @patch("Oleg.commands.functions.time.sleep")
+    def test_run_timer_minute(self, mock_sleep):
+        """run_timer на минуты вызывает sleep с правильным значением"""
+        run_timer("5", "минут")
+        mock_sleep.assert_called_once_with(300)
+
+    @patch("Oleg.commands.functions.time.sleep")
+    def test_run_timer_hour(self, mock_sleep):
+        """run_timer на часы вызывает sleep с правильным значением"""
+        run_timer("2", "часа")
+        mock_sleep.assert_called_once_with(7200)
+
+    @patch("Oleg.commands.functions.time.sleep")
+    def test_run_timer_unknown_format(self, mock_sleep, caplog):
+        """run_timer с неизвестным форматом не вызывает sleep и не логгирует завершение"""
+        with caplog.at_level("ERROR"):
+            run_timer("5", "секунды")
+        mock_sleep.assert_not_called()
+        assert "Таймер завершён" not in caplog.text
+        assert "неизвестный формат" in caplog.text
+
+    @patch("Oleg.commands.functions.time.sleep")
+    def test_run_timer_bad_number(self, mock_sleep, caplog):
+        """run_timer с не-числом не вызывает sleep и логирует ошибку"""
+        with caplog.at_level("ERROR"):
+            run_timer("пять", "минут")
+        mock_sleep.assert_not_called()
+        assert "не является числом" in caplog.text
 
     def test_print_heart(self):
         """Тест функции рисования сердечек (только возврат. Печать не проверяется)"""

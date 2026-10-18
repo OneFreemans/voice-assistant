@@ -233,15 +233,16 @@ def dispatch_command(text: str, commands: dict):
         result = spec.func()
 
     # ---------- фоновая задача (таймер и т.п.) ----------
-    if spec.background and result:
-        # Костыль: таймер запускаем только по текстовому маркеру
-        if "таймер запущен" in str(result):
-            t = threading.Thread(
-                target=spec.background,
-                args=(args[0] if args else "1", args[1] if len(args) > 1 else "минут"),
-                daemon=True,
-            )
-            t.start()
+    # Запускаем поток всегда, когда у команды есть background и она вернула
+    # непустой результат. Успешность сценария обеспечивает сама фоновая
+    # функция (например, run_timer молча завершается при неизвестном формате).
+    if spec.background and result and args:
+        t = threading.Thread(
+            target=spec.background,
+            args=tuple(args[:2]),
+            daemon=True,
+        )
+        t.start()
 
     return result, trigger, args
 
