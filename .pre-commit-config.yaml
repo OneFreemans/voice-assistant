@@ -10,7 +10,7 @@ repos:
     hooks:
       - id: pytest
         name: pytest
-        entry: pytest tests/
+        entry: .venv/Scripts/python.exe -m pytest tests/
         language: system
         pass_filenames: false
         always_run: true
